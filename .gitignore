@@ -1,0 +1,6 @@
+# Qt creator files
+CMakeLists.txt.user*
+*.autosave
+
+# KDE files
+.directory
