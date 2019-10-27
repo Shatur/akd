@@ -21,7 +21,6 @@
 #include "keyboarddaemon.h"
 
 #include <iostream>
-#include <X11/Xlib.h>
 #include <X11/XKBlib.h>
 
 constexpr std::string_view activeWindowPropertyName = "_NET_ACTIVE_WINDOW";
