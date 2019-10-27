@@ -13,3 +13,5 @@ add_executable(${PROJECT_NAME}
     )
 
 target_link_libraries(${PROJECT_NAME} X11::X11)
+
+install(TARGETS ${PROJECT_NAME})
