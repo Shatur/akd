@@ -31,15 +31,12 @@ KeyboardDaemon::KeyboardDaemon()
     if (!m_display)
         throw std::runtime_error("Unable to open display");
 
+    m_root = XDefaultRootWindow(m_display.get());
+
     // Listen for events
-    if (!XSelectInput(m_display.get(), m_root, PropertyChangeMask | SubstructureNotifyMask))
-        throw std::runtime_error("Unable to select X11 inputs");
-
-    if (!XkbQueryExtension(m_display.get(), nullptr, &m_xkbEventType, nullptr, nullptr, nullptr))
-        throw std::runtime_error("Unable to query XKB extension");
-
-    if (!XkbSelectEvents(m_display.get(), XkbUseCoreKbd, XkbIndicatorStateNotifyMask, XkbIndicatorStateNotifyMask))
-        throw std::runtime_error("Unable select XKB events");
+    XSelectInput(m_display.get(), m_root, PropertyChangeMask | SubstructureNotifyMask);
+    XkbQueryExtension(m_display.get(), nullptr, &m_xkbEventType, nullptr, nullptr, nullptr);
+    XkbSelectEvents(m_display.get(), XkbUseCoreKbd, XkbIndicatorStateNotifyMask, XkbIndicatorStateNotifyMask);
 }
 
 void KeyboardDaemon::exec()
@@ -72,8 +69,7 @@ void KeyboardDaemon::switchLayout(XPropertyEvent *event)
         return;
 
     const auto it = m_windows.find(activeWindow());
-    if (!XkbLockGroup(m_display.get(), XkbUseCoreKbd, it != m_windows.end() ? it->second : 0))
-        throw std::runtime_error("Unable to change layout");
+    XkbLockGroup(m_display.get(), XkbUseCoreKbd, it != m_windows.end() ? it->second : 0);
 }
 
 void KeyboardDaemon::saveCurrentLayout()
@@ -92,10 +88,10 @@ Window KeyboardDaemon::activeWindow()
     unsigned long remainSize;
     unsigned char *bytes;
 
-    if (XGetWindowProperty(m_display.get(), m_root, activeWindowProperty, 0, 1, false, AnyPropertyType,
-                           &type, &format, &size, &remainSize, &bytes)) {
-        throw std::runtime_error("Unable to get active window");
-    }
+    XGetWindowProperty(m_display.get(), m_root, activeWindowProperty, 0, 1, false, AnyPropertyType,
+                       &type, &format, &size, &remainSize, &bytes);
+
+    std::unique_ptr<unsigned char [], XlibDeleter> data(bytes);
 
     return *reinterpret_cast<Window *>(bytes);
 }

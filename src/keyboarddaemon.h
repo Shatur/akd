@@ -44,11 +44,10 @@ private:
     [[nodiscard]]
     Window activeWindow();
 
-    // Initialize connection to X11
-    std::unique_ptr<Display, DisplayDeleter> m_display{XOpenDisplay(nullptr)};
-    Window m_root = XDefaultRootWindow(m_display.get());
-
+    std::unique_ptr<Display, DisplayDeleter> m_display{XOpenDisplay(nullptr)}; // Initialize connection to X11
     std::unordered_map<Window, unsigned char> m_windows;
+
+    Window m_root;
     int m_xkbEventType;
 };
 

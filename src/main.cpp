@@ -30,7 +30,7 @@ int main()
         KeyboardDaemon daemon;
         daemon.exec();
     } catch (std::exception &error) {
-        std::cout << error.what() << '\n';
+        std::cerr << error.what() << '\n';
         return 1;
     }
 }
