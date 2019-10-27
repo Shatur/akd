@@ -90,7 +90,7 @@ Window KeyboardDaemon::activeWindow()
     XGetWindowProperty(m_display.get(), m_root, activeWindowProperty, 0, 1, false, AnyPropertyType,
                        &type, &format, &size, &remainSize, &bytes);
 
-    std::unique_ptr<unsigned char [], XlibDeleter> data(bytes);
+    std::unique_ptr<unsigned char [], XlibDeleter> cleaner(bytes);
 
     return *reinterpret_cast<Window *>(bytes);
 }
