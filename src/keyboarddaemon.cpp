@@ -28,12 +28,11 @@ constexpr std::string_view activeWindowPropertyName = "_NET_ACTIVE_WINDOW";
 
 KeyboardDaemon::KeyboardDaemon()
 {
-    m_display.reset(XOpenDisplay(nullptr));
     if (!m_display)
         throw std::runtime_error("Unable to open display");
 
     // Listen for events
-    if (!XSelectInput(m_display.get(), XDefaultRootWindow(m_display.get()), PropertyChangeMask | SubstructureNotifyMask))
+    if (!XSelectInput(m_display.get(), m_root, PropertyChangeMask | SubstructureNotifyMask))
         throw std::runtime_error("Unable to select X11 inputs");
 
     if (!XkbQueryExtension(m_display.get(), nullptr, &m_xkbEventType, nullptr, nullptr, nullptr))
@@ -93,7 +92,7 @@ Window KeyboardDaemon::activeWindow()
     unsigned long remainSize;
     unsigned char *bytes;
 
-    if (XGetWindowProperty(m_display.get(), XDefaultRootWindow(m_display.get()), activeWindowProperty, 0, 1, false, AnyPropertyType,
+    if (XGetWindowProperty(m_display.get(), m_root, activeWindowProperty, 0, 1, false, AnyPropertyType,
                            &type, &format, &size, &remainSize, &bytes)) {
         throw std::runtime_error("Unable to get active window");
     }

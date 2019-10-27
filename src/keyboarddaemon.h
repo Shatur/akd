@@ -30,7 +30,9 @@ class KeyboardDaemon
 {
 public:
     KeyboardDaemon();
-    [[ noreturn ]] void exec();
+
+    [[noreturn]]
+    void exec();
 
 private:
     // Event handlers
@@ -39,9 +41,13 @@ private:
     void saveCurrentLayout();
 
     // Helpers
+    [[nodiscard]]
     Window activeWindow();
 
-    std::unique_ptr<Display, DisplayDeleter> m_display;
+    // Initialize connection to X11
+    std::unique_ptr<Display, DisplayDeleter> m_display{XOpenDisplay(nullptr)};
+    Window m_root = XDefaultRootWindow(m_display.get());
+
     std::unordered_map<Window, unsigned char> m_windows;
     int m_xkbEventType;
 };
