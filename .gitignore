@@ -2,5 +2,10 @@
 CMakeLists.txt.user*
 *.autosave
 
+# Vim files
+.tasks
+.clangd
+compile_commands.json
+
 # KDE files
 .directory
