@@ -1,5 +1,5 @@
 /*
- *  Copyright © 2019 Hennadii Chernyshchyk <genaloner@gmail.com>
+ *  Copyright © 2019-2020 Hennadii Chernyshchyk <genaloner@gmail.com>
  *
  *  This file is part of Advanced Keyboard Daemon.
  *
@@ -21,6 +21,7 @@
 #include "keyboarddaemon.h"
 
 #include <iostream>
+
 #include <X11/XKBlib.h>
 
 constexpr std::string_view activeWindowPropertyName = "_NET_ACTIVE_WINDOW";
@@ -36,6 +37,13 @@ KeyboardDaemon::KeyboardDaemon()
     XSelectInput(m_display.get(), m_root, PropertyChangeMask | SubstructureNotifyMask);
     XkbQueryExtension(m_display.get(), nullptr, &m_xkbEventType, nullptr, nullptr, nullptr);
     XkbSelectEvents(m_display.get(), XkbUseCoreKbd, XkbIndicatorStateNotifyMask, XkbIndicatorStateNotifyMask);
+}
+
+void KeyboardDaemon::setGroups(std::vector<std::string> groups)
+{
+    m_groups = std::move(groups);
+
+    // Here need to apply first specified group
 }
 
 void KeyboardDaemon::exec()

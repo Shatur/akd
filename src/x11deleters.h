@@ -1,5 +1,5 @@
 /*
- *  Copyright © 2019 Hennadii Chernyshchyk <genaloner@gmail.com>
+ *  Copyright © 2019-2020 Hennadii Chernyshchyk <genaloner@gmail.com>
  *
  *  This file is part of Advanced Keyboard Daemon.
  *

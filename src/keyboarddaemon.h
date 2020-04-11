@@ -1,5 +1,5 @@
 /*
- *  Copyright © 2019 Hennadii Chernyshchyk <genaloner@gmail.com>
+ *  Copyright © 2019-2020 Hennadii Chernyshchyk <genaloner@gmail.com>
  *
  *  This file is part of Advanced Keyboard Daemon.
  *
@@ -25,11 +25,14 @@
 
 #include <memory>
 #include <unordered_map>
+#include <vector>
 
 class KeyboardDaemon
 {
 public:
     KeyboardDaemon();
+
+    void setGroups(std::vector<std::string> groups);
 
     [[noreturn]]
     void exec();
@@ -46,6 +49,7 @@ private:
 
     std::unique_ptr<Display, DisplayDeleter> m_display{XOpenDisplay(nullptr)}; // Initialize connection to X11
     std::unordered_map<Window, unsigned char> m_windows;
+    std::vector<std::string> m_groups;
 
     Window m_root;
     int m_xkbEventType;
