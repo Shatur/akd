@@ -11,6 +11,7 @@ find_package(Boost COMPONENTS program_options)
 add_executable(${PROJECT_NAME}
     src/main.cpp
     src/keyboarddaemon.cpp
+    src/keyboardsymbols.cpp
     )
 
 target_link_libraries(${PROJECT_NAME} Boost::program_options X11::X11)

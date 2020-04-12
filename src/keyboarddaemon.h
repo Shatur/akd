@@ -32,7 +32,7 @@ class KeyboardDaemon
 public:
     KeyboardDaemon();
 
-    void setGroups(std::vector<std::string> groups);
+    void setGroups(const std::vector<std::string> &unsplittedGroups);
 
     [[noreturn]]
     void exec();
@@ -42,6 +42,7 @@ private:
     void switchLayout(XPropertyEvent *event);
     void removeDestroyedWindow(XDestroyWindowEvent *event);
     void saveCurrentLayout();
+    void setGroup(const std::vector<std::string> &group);
 
     // Helpers
     [[nodiscard]]
@@ -49,7 +50,7 @@ private:
 
     std::unique_ptr<Display, DisplayDeleter> m_display{XOpenDisplay(nullptr)}; // Initialize connection to X11
     std::unordered_map<Window, unsigned char> m_windows;
-    std::vector<std::string> m_groups;
+    std::vector<std::vector<std::string>> m_groups;
 
     Window m_root;
     int m_xkbEventType;
