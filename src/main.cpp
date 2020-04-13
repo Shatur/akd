@@ -21,10 +21,12 @@
 #include "keyboarddaemon.h"
 
 #include <iostream>
+#include <filesystem>
 
 #include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
+namespace fs = std::filesystem;
 
 int main(int argc, char *argv[])
 {
@@ -43,7 +45,8 @@ int main(int argc, char *argv[])
 
     po::variables_map parameters;
     store(parse_command_line(argc, argv, allOptions), parameters);
-    store(parse_config_file(parameters["settings"].as<std::string>().c_str(), configuration), parameters);
+    if (fs::exists(parameters["settings"].as<std::string>()))
+        store(parse_config_file(parameters["settings"].as<std::string>().c_str(), configuration), parameters);
     if (parameters.count("help")) {
         std::cout << allOptions;
         return 1;
@@ -53,7 +56,8 @@ int main(int argc, char *argv[])
         notify(parameters);
 
         KeyboardDaemon daemon;
-        daemon.setGroups(parameters["general.languages"].as<std::vector<std::string>>());
+        if (parameters.count("general.languages"))
+            daemon.setGroups(parameters["general.languages"].as<std::vector<std::string>>());
         daemon.exec();
     } catch (std::exception &error) {
         std::cerr << error.what() << '\n';
