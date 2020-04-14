@@ -37,7 +37,8 @@ int main(int argc, char *argv[])
 
     po::options_description configuration("Configuration");
     configuration.add_options()
-            ("general.languages,l", po::value<std::vector<std::string>>()->multitoken(), "Languages, separated by ','. Can be specified several times to define groups.");
+            ("general.languages,l", po::value<std::vector<std::string>>()->multitoken(), "Languages, separated by ','. Can be specified several times to define groups.")
+            ("shortcuts.nextgroup,n", po::value<std::string>(), "Switch to next languages group");
 
 
     po::options_description allOptions("Advanced keyboard daemon");
@@ -58,6 +59,8 @@ int main(int argc, char *argv[])
         KeyboardDaemon daemon;
         if (parameters.count("general.languages"))
             daemon.setGroups(parameters["general.languages"].as<std::vector<std::string>>());
+        if (parameters.count("shortcuts.nextgroup"))
+            daemon.addNextGroupShortcut(parameters["shortcuts.nextgroup"].as<std::string>());
         daemon.exec();
     } catch (std::exception &error) {
         std::cerr << error.what() << '\n';

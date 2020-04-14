@@ -12,6 +12,7 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/keyboarddaemon.cpp
     src/keyboardsymbols.cpp
+    src/shortcut.cpp
     )
 
 target_link_libraries(${PROJECT_NAME} Boost::program_options X11::X11)

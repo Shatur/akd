@@ -22,6 +22,7 @@
 #define KEYBOARDDAEMON_H
 
 #include "x11deleters.h"
+#include "shortcut.h"
 
 #include <memory>
 #include <unordered_map>
@@ -33,25 +34,32 @@ public:
     KeyboardDaemon();
 
     void setGroups(const std::vector<std::string> &unsplittedGroups);
+    void addNextGroupShortcut(const std::string &shortcut);
 
     [[noreturn]]
     void exec();
+
+    Display &display() const;
+    Window root() const;
+
+    void switchToNextGroup();
 
 private:
     // Event handlers
     void switchLayout(XPropertyEvent *event);
     void removeDestroyedWindow(XDestroyWindowEvent *event);
     void saveCurrentLayout();
-    void setGroup(const std::vector<std::string> &group);
 
     // Helpers
     [[nodiscard]]
     Window activeWindow();
+    void setGroup(const std::vector<std::string> &group);
 
-    std::unique_ptr<Display, DisplayDeleter> m_display{XOpenDisplay(nullptr)}; // Initialize connection to X11
     std::unordered_map<Window, unsigned char> m_windows;
     std::vector<std::vector<std::string>> m_groups;
+    std::vector<Shortcut> m_shortcuts;
 
+    std::unique_ptr<Display, DisplayDeleter> m_display{XOpenDisplay(nullptr)};
     Window m_root;
     int m_xkbEventType;
 };

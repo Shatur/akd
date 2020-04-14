@@ -58,19 +58,45 @@ void KeyboardDaemon::setGroups(const std::vector<std::string> &unsplittedGroups)
         setGroup(m_groups.front());
 }
 
+void KeyboardDaemon::addNextGroupShortcut(const std::string &shortcut)
+{
+    m_shortcuts.emplace_back(shortcut, *this, &KeyboardDaemon::switchToNextGroup);
+}
+
 void KeyboardDaemon::exec()
 {
     while (true) {
         XEvent event;
         XNextEvent(m_display.get(), &event);
 
-        if (event.type == DestroyNotify)
+        if (event.type == DestroyNotify) {
             removeDestroyedWindow(reinterpret_cast<XDestroyWindowEvent *>(&event));
-        else if (event.type == PropertyNotify) // Current window changed
-            switchLayout(reinterpret_cast<XPropertyEvent *>(&event));
-        else if (event.type == m_xkbEventType) // Current layout changed
+        } else if (event.type == PropertyNotify) {
+            // Current window changed
+            switchLayout(reinterpret_cast<XPropertyEvent *>(&event));  
+        } else if (event.type == KeyPress) {
+            for (const Shortcut &shortcut : m_shortcuts)
+                shortcut.processEvent(event);
+        } else if (event.type == m_xkbEventType) {
+            // Current layout changed
             saveCurrentLayout();
+        }
     }
+}
+
+Display &KeyboardDaemon::display() const
+{
+    return *m_display;
+}
+
+Window KeyboardDaemon::root() const
+{
+    return m_root;
+}
+
+void KeyboardDaemon::switchToNextGroup()
+{
+    std::cout << "Currently not implemented!" << std::endl;
 }
 
 void KeyboardDaemon::removeDestroyedWindow(XDestroyWindowEvent *event)
@@ -95,7 +121,25 @@ void KeyboardDaemon::saveCurrentLayout()
 {
     XkbStateRec state;
     XkbGetState(m_display.get(), XkbUseCoreKbd, &state);
-    m_windows[activeWindow()] = state.group;
+
+    m_windows.insert_or_assign(activeWindow(), state.group);
+}
+
+Window KeyboardDaemon::activeWindow()
+{
+    const Atom activeWindowProperty = XInternAtom(m_display.get(), activeWindowPropertyName.data(), false);
+    Atom type;
+    int format;
+    unsigned long size;
+    unsigned long remainSize;
+    unsigned char *bytes;
+
+    XGetWindowProperty(m_display.get(), m_root, activeWindowProperty, 0, 1, false, AnyPropertyType,
+                       &type, &format, &size, &remainSize, &bytes);
+
+    std::unique_ptr<unsigned char [], XlibDeleter> cleaner(bytes);
+
+    return *reinterpret_cast<Window *>(bytes);
 }
 
 void KeyboardDaemon::setGroup(const std::vector<std::string> &group)
@@ -120,21 +164,4 @@ void KeyboardDaemon::setGroup(const std::vector<std::string> &group)
 
     if (!XkbSetMap(m_display.get(), XkbKeySymsMask, newDesc.get()))
         throw std::logic_error("Unable to set the following symbols: " + newSymbols);
-}
-
-Window KeyboardDaemon::activeWindow()
-{
-    const Atom activeWindowProperty = XInternAtom(m_display.get(), activeWindowPropertyName.data(), false);
-    Atom type;
-    int format;
-    unsigned long size;
-    unsigned long remainSize;
-    unsigned char *bytes;
-
-    XGetWindowProperty(m_display.get(), m_root, activeWindowProperty, 0, 1, false, AnyPropertyType,
-                       &type, &format, &size, &remainSize, &bytes);
-
-    std::unique_ptr<unsigned char [], XlibDeleter> cleaner(bytes);
-
-    return *reinterpret_cast<Window *>(bytes);
 }
