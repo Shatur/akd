@@ -69,17 +69,19 @@ void KeyboardDaemon::exec()
         XEvent event;
         XNextEvent(m_display.get(), &event);
 
-        if (event.type == DestroyNotify) {
-            removeDestroyedWindow(reinterpret_cast<XDestroyWindowEvent *>(&event));
-        } else if (event.type == PropertyNotify) {
-            // Current window changed
-            switchLayout(reinterpret_cast<XPropertyEvent *>(&event));  
-        } else if (event.type == KeyPress) {
-            for (const Shortcut &shortcut : m_shortcuts)
-                shortcut.processEvent(event);
-        } else if (event.type == m_xkbEventType) {
-            // Current layout changed
-            saveCurrentLayout();
+        switch (event.type) {
+        case DestroyNotify:
+            removeDestroyedWindow(event.xdestroywindow);
+            break;
+        case PropertyNotify:
+            applyLayout(event.xproperty);
+            break;
+        case KeyPress:
+            processShortcuts(event.xkey);
+            break;
+        default:
+            if (event.type == m_xkbEventType)
+                saveCurrentLayout();
         }
     }
 }
@@ -99,17 +101,23 @@ void KeyboardDaemon::switchToNextGroup()
     std::cout << "Currently not implemented!" << std::endl;
 }
 
-void KeyboardDaemon::removeDestroyedWindow(XDestroyWindowEvent *event)
+void KeyboardDaemon::removeDestroyedWindow(const XDestroyWindowEvent &event)
 {
-    m_windows.erase(event->window);
+    m_windows.erase(event.window);
 }
 
-void KeyboardDaemon::switchLayout(XPropertyEvent *event)
+void KeyboardDaemon::processShortcuts(const XKeyEvent &event)
 {
-    if (event->state != PropertyNewValue)
+    for (const Shortcut &shortcut : m_shortcuts)
+        shortcut.processEvent(event);
+}
+
+void KeyboardDaemon::applyLayout(const XPropertyEvent &event)
+{
+    if (event.state != PropertyNewValue)
         return;
 
-    const std::unique_ptr<char [], XlibDeleter> propertyEventName(XGetAtomName(m_display.get(), event->atom));
+    const std::unique_ptr<char [], XlibDeleter> propertyEventName(XGetAtomName(m_display.get(), event.atom));
     if (propertyEventName.get() != activeWindowPropertyName)
         return;
 

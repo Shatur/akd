@@ -46,8 +46,9 @@ public:
 
 private:
     // Event handlers
-    void switchLayout(XPropertyEvent *event);
-    void removeDestroyedWindow(XDestroyWindowEvent *event);
+    void applyLayout(const XPropertyEvent &event);
+    void removeDestroyedWindow(const XDestroyWindowEvent &event);
+    void processShortcuts(const XKeyEvent &event);
     void saveCurrentLayout();
 
     // Helpers

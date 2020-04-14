@@ -4,20 +4,16 @@
 #include <string>
 #include <functional>
 
-class _XDisplay;
-class KeyboardDaemon;
-union _XEvent;
+#include <X11/Xlib.h>
 
-using KeyCode = unsigned char;
-using Display = _XDisplay;
-using XEvent = _XEvent;
+class KeyboardDaemon;
 
 class Shortcut
 {
 public:
     Shortcut(const std::string &shortcut, KeyboardDaemon &daemon, std::function<void(KeyboardDaemon &)> callback);
 
-    void processEvent(const XEvent &event) const;
+    void processEvent(const XKeyEvent &event) const;
 
 private:
     unsigned m_modmask = 0;

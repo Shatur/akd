@@ -40,12 +40,12 @@ Shortcut::Shortcut(const std::string &shortcut, KeyboardDaemon &daemon, std::fun
     }
 }
 
-void Shortcut::processEvent(const XEvent &event) const
+void Shortcut::processEvent(const XKeyEvent &event) const
 {
     bool currentModifiers = std::any_of(additionalModifiers.begin(), additionalModifiers.end(), [this, &event](unsigned additionalModifier) {
-        return event.xkey.state == (m_modmask | additionalModifier);
+        return event.state == (m_modmask | additionalModifier);
     });
 
-    if (currentModifiers && event.xkey.keycode == m_keycode)
+    if (currentModifiers && event.keycode == m_keycode)
         m_callback(m_daemon);
 }
