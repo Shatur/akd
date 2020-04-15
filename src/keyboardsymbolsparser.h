@@ -10,9 +10,9 @@ namespace KeyboardSymbolsParser
 {
     namespace x3 = boost::spirit::x3;
 
-    x3::rule<class SymbolsRule, KeyboardSymbols> const symbolsRule = "symbols";
-    x3::rule<class LayoutsRule, std::vector<std::string>> const layoutRule = "layout";
-    x3::rule<class OptionsRule, std::vector<std::string>> const optionsRule = "options";
+    static const x3::rule<class SymbolsRule, KeyboardSymbols> symbolsRule = "symbols";
+    static const x3::rule<class LayoutsRule, std::vector<std::string>> layoutRule = "layout";
+    static const x3::rule<class OptionsRule, std::vector<std::string>> optionsRule = "options";
 
     // Server sends symbols with '_' instead of '+'
     const auto symbolsRule_def = "pc_" >> layoutRule >> -('_' >> optionsRule);
