@@ -37,8 +37,8 @@ int main(int argc, char *argv[])
 
     po::options_description configuration("Configuration");
     configuration.add_options()
-            ("general.languages,l", po::value<std::vector<std::string>>()->multitoken(), "Languages, separated by ','. Can be specified several times to define groups.")
-            ("shortcuts.nextgroup,n", po::value<std::string>(), "Switch to next languages group");
+            ("general.layouts,l", po::value<std::vector<std::string>>()->multitoken(), "Languages, separated by ','. Can be specified several times to define several layouts.")
+            ("shortcuts.nextlayout,n", po::value<std::string>(), "Switch to next layout");
 
 
     po::options_description allOptions("Advanced keyboard daemon");
@@ -57,11 +57,11 @@ int main(int argc, char *argv[])
         notify(parameters);
 
         KeyboardDaemon daemon;
-        if (parameters.count("general.languages"))
-            daemon.setGroups(parameters["general.languages"].as<std::vector<std::string>>());
-        if (parameters.count("shortcuts.nextgroup"))
-            daemon.addNextGroupShortcut(parameters["shortcuts.nextgroup"].as<std::string>());
-        daemon.exec();
+        if (parameters.count("general.layouts"))
+            daemon.setLayouts(parameters["general.layouts"].as<std::vector<std::string>>());
+        if (parameters.count("shortcuts.nextlayout"))
+            daemon.addNextLayoutShortcut(parameters["shortcuts.nextlayout"].as<std::string>());
+        daemon.processEvents();
     } catch (std::exception &error) {
         std::cerr << error.what() << '\n';
         return 1;

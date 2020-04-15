@@ -46,24 +46,24 @@ KeyboardDaemon::KeyboardDaemon()
     XkbSelectEvents(m_display.get(), XkbUseCoreKbd, XkbIndicatorStateNotifyMask, XkbIndicatorStateNotifyMask);
 }
 
-void KeyboardDaemon::setGroups(const std::vector<std::string> &unsplittedGroups)
+void KeyboardDaemon::setLayouts(const std::vector<std::string> &unsplittedLayouts)
 {
-    for (const std::string &group : unsplittedGroups) {
-        std::vector<std::string> splittedGroup;
-        boost::split(splittedGroup, group, boost::is_any_of(","));
-        m_groups.push_back(std::move(splittedGroup));
+    for (const std::string &layout : unsplittedLayouts) {
+        std::vector<std::string> splittedLayouts;
+        boost::split(splittedLayouts, layout, boost::is_any_of(","));
+        m_layouts.push_back(std::move(splittedLayouts));
     }
 
-    if (!m_groups.empty())
-        setGroup(m_groups.front());
+    if (!m_layouts.empty())
+        setLayout(m_layouts.front());
 }
 
-void KeyboardDaemon::addNextGroupShortcut(const std::string &shortcut)
+void KeyboardDaemon::addNextLayoutShortcut(const std::string &shortcut)
 {
-    m_shortcuts.emplace_back(shortcut, *this, &KeyboardDaemon::switchToNextGroup);
+    m_shortcuts.emplace_back(shortcut, *this, &KeyboardDaemon::switchToNextLayout);
 }
 
-void KeyboardDaemon::exec()
+void KeyboardDaemon::processEvents()
 {
     while (true) {
         XEvent event;
@@ -81,7 +81,7 @@ void KeyboardDaemon::exec()
             break;
         default:
             if (event.type == m_xkbEventType)
-                saveCurrentLayout();
+                saveCurrentGroup();
         }
     }
 }
@@ -96,7 +96,7 @@ Window KeyboardDaemon::root() const
     return m_root;
 }
 
-void KeyboardDaemon::switchToNextGroup()
+void KeyboardDaemon::switchToNextLayout()
 {
     std::cout << "Currently not implemented!" << std::endl;
 }
@@ -125,7 +125,7 @@ void KeyboardDaemon::applyLayout(const XPropertyEvent &event)
     XkbLockGroup(m_display.get(), XkbUseCoreKbd, it != m_windows.end() ? it->second : 0);
 }
 
-void KeyboardDaemon::saveCurrentLayout()
+void KeyboardDaemon::saveCurrentGroup()
 {
     XkbStateRec state;
     XkbGetState(m_display.get(), XkbUseCoreKbd, &state);
@@ -150,7 +150,7 @@ Window KeyboardDaemon::activeWindow()
     return *reinterpret_cast<Window *>(bytes);
 }
 
-void KeyboardDaemon::setGroup(const std::vector<std::string> &group)
+void KeyboardDaemon::setLayout(const std::vector<std::string> &layout)
 {
     // Read info from X11
     const std::unique_ptr<XkbDescRec, XlibDeleter> currentDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, nullptr, XkbGBN_ServerSymbolsMask | XkbGBN_KeyNamesMask, 0, false));
@@ -161,7 +161,7 @@ void KeyboardDaemon::setGroup(const std::vector<std::string> &group)
     x3::phrase_parse(currentSymbols.get(), currentSymbols.get() + strlen(currentSymbols.get()), KeyboardSymbolsParser::symbolsRule, x3::space, parsedSymbols);
 
     // Replace layouts with specified and generate new symbols string
-    parsedSymbols.layouts = group;
+    parsedSymbols.layout = layout;
     std::string newSymbols = parsedSymbols.x11String();
 
     // Send it back to X11

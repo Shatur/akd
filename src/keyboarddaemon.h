@@ -33,31 +33,31 @@ class KeyboardDaemon
 public:
     KeyboardDaemon();
 
-    void setGroups(const std::vector<std::string> &unsplittedGroups);
-    void addNextGroupShortcut(const std::string &shortcut);
+    void setLayouts(const std::vector<std::string> &unsplittedLayouts);
+    void addNextLayoutShortcut(const std::string &shortcut);
 
     [[noreturn]]
-    void exec();
+    void processEvents();
 
     Display &display() const;
     Window root() const;
 
-    void switchToNextGroup();
+    void switchToNextLayout();
 
 private:
     // Event handlers
     void applyLayout(const XPropertyEvent &event);
     void removeDestroyedWindow(const XDestroyWindowEvent &event);
     void processShortcuts(const XKeyEvent &event);
-    void saveCurrentLayout();
+    void saveCurrentGroup();
 
     // Helpers
     [[nodiscard]]
     Window activeWindow();
-    void setGroup(const std::vector<std::string> &group);
+    void setLayout(const std::vector<std::string> &layout);
 
     std::unordered_map<Window, unsigned char> m_windows;
-    std::vector<std::vector<std::string>> m_groups;
+    std::vector<std::vector<std::string>> m_layouts;
     std::vector<Shortcut> m_shortcuts;
 
     std::unique_ptr<Display, DisplayDeleter> m_display{XOpenDisplay(nullptr)};
