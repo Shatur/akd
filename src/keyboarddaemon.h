@@ -23,6 +23,7 @@
 
 #include "x11deleters.h"
 #include "shortcut.h"
+#include "windowparameters.h"
 
 #include <memory>
 #include <unordered_map>
@@ -52,17 +53,21 @@ private:
     void saveCurrentGroup();
 
     // Helpers
+    void setLayout(size_t layoutIndex);
+    void setGroup(unsigned char group);
+
     [[nodiscard]]
     Window activeWindow();
-    void setLayout(const std::vector<std::string> &layout);
 
-    std::unordered_map<Window, unsigned char> m_windows;
+    std::unique_ptr<Display, DisplayDeleter> m_display{XOpenDisplay(nullptr)};
+    Window m_root{XDefaultRootWindow(m_display.get())};
+    int m_xkbEventType;
+
+    std::unordered_map<Window, WindowParameters> m_windows{{activeWindow(), {}}};
     std::vector<std::vector<std::string>> m_layouts;
     std::vector<Shortcut> m_shortcuts;
 
-    std::unique_ptr<Display, DisplayDeleter> m_display{XOpenDisplay(nullptr)};
-    Window m_root;
-    int m_xkbEventType;
+    decltype(m_windows)::iterator m_currentWindow = m_windows.begin();
 };
 
 #endif // KEYBOARDDAEMON_H

@@ -38,12 +38,12 @@ KeyboardDaemon::KeyboardDaemon()
     if (!m_display)
         throw std::runtime_error("Unable to open display");
 
-    m_root = XDefaultRootWindow(m_display.get());
-
     // Listen for events
     XSelectInput(m_display.get(), m_root, PropertyChangeMask | SubstructureNotifyMask);
     XkbQueryExtension(m_display.get(), nullptr, &m_xkbEventType, nullptr, nullptr, nullptr);
     XkbSelectEvents(m_display.get(), XkbUseCoreKbd, XkbIndicatorStateNotifyMask, XkbIndicatorStateNotifyMask);
+
+    saveCurrentGroup();
 }
 
 void KeyboardDaemon::setLayouts(const std::vector<std::string> &unsplittedLayouts)
@@ -54,8 +54,10 @@ void KeyboardDaemon::setLayouts(const std::vector<std::string> &unsplittedLayout
         m_layouts.push_back(std::move(splittedLayouts));
     }
 
-    if (!m_layouts.empty())
-        setLayout(m_layouts.front());
+    if (m_layouts.empty())
+        return;
+
+    setLayout(0);
 }
 
 void KeyboardDaemon::addNextLayoutShortcut(const std::string &shortcut)
@@ -98,7 +100,11 @@ Window KeyboardDaemon::root() const
 
 void KeyboardDaemon::switchToNextLayout()
 {
-    std::cout << "Currently not implemented!" << std::endl;
+    m_currentWindow->second.layoutIndex += 1;
+    if (m_currentWindow->second.layoutIndex >= m_layouts.size())
+        m_currentWindow->second.layoutIndex = 0;
+
+    setLayout(m_currentWindow->second.layoutIndex);
 }
 
 void KeyboardDaemon::removeDestroyedWindow(const XDestroyWindowEvent &event)
@@ -121,8 +127,12 @@ void KeyboardDaemon::applyLayout(const XPropertyEvent &event)
     if (propertyEventName.get() != activeWindowPropertyName)
         return;
 
-    const auto it = m_windows.find(activeWindow());
-    XkbLockGroup(m_display.get(), XkbUseCoreKbd, it != m_windows.end() ? it->second : 0);
+    const auto [newWindow, inserted] = m_windows.try_emplace(activeWindow());
+    if (newWindow->second.layoutIndex != m_currentWindow->second.layoutIndex)
+        setLayout(newWindow->second.layoutIndex);
+    if (newWindow->second.group != m_currentWindow->second.group)
+        setGroup(newWindow->second.group);
+    m_currentWindow = newWindow;
 }
 
 void KeyboardDaemon::saveCurrentGroup()
@@ -130,7 +140,37 @@ void KeyboardDaemon::saveCurrentGroup()
     XkbStateRec state;
     XkbGetState(m_display.get(), XkbUseCoreKbd, &state);
 
-    m_windows.insert_or_assign(activeWindow(), state.group);
+    m_currentWindow->second.group = state.group;
+}
+
+void KeyboardDaemon::setLayout(size_t layoutIndex)
+{
+    // Read info from X11
+    const std::unique_ptr<XkbDescRec, XlibDeleter> currentDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, nullptr, XkbGBN_ServerSymbolsMask | XkbGBN_KeyNamesMask, 0, false));
+    const std::unique_ptr<char [], XlibDeleter> currentSymbols(XGetAtomName(m_display.get(), currentDesc->names->symbols));
+
+    // Parse to structure
+    KeyboardSymbols parsedSymbols;
+    x3::phrase_parse(currentSymbols.get(), currentSymbols.get() + strlen(currentSymbols.get()), KeyboardSymbolsParser::symbolsRule, x3::space, parsedSymbols);
+
+    // Replace layouts with specified and generate new symbols string
+    parsedSymbols.layout = m_layouts[layoutIndex];
+    std::string newSymbols = parsedSymbols.x11String();
+
+    // Send it back to X11
+    XkbComponentNamesRec componentNames = {nullptr, nullptr, nullptr, nullptr, newSymbols.data(), nullptr};
+    const std::unique_ptr<XkbDescRec, XlibDeleter> newDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, &componentNames, XkbGBN_ClientSymbolsMask | XkbGBN_KeyNamesMask, 0, false));
+    if (!newDesc)
+        throw std::logic_error("Unable to build keyboard description with the following symbols: " + newSymbols);
+
+    if (!XkbSetMap(m_display.get(), XkbKeySymsMask, newDesc.get()))
+        throw std::logic_error("Unable to set the following symbols: " + newSymbols);
+}
+
+void KeyboardDaemon::setGroup(unsigned char group)
+{
+    if (!XkbLockGroup(m_display.get(), XkbUseCoreKbd, group))
+        throw std::logic_error("Unable to switch group to " + std::to_string(group));
 }
 
 Window KeyboardDaemon::activeWindow()
@@ -148,28 +188,4 @@ Window KeyboardDaemon::activeWindow()
     std::unique_ptr<unsigned char [], XlibDeleter> cleaner(bytes);
 
     return *reinterpret_cast<Window *>(bytes);
-}
-
-void KeyboardDaemon::setLayout(const std::vector<std::string> &layout)
-{
-    // Read info from X11
-    const std::unique_ptr<XkbDescRec, XlibDeleter> currentDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, nullptr, XkbGBN_ServerSymbolsMask | XkbGBN_KeyNamesMask, 0, false));
-    const std::unique_ptr<char [], XlibDeleter> currentSymbols(XGetAtomName(m_display.get(), currentDesc->names->symbols));
-
-    // Parse to structure
-    KeyboardSymbols parsedSymbols;
-    x3::phrase_parse(currentSymbols.get(), currentSymbols.get() + strlen(currentSymbols.get()), KeyboardSymbolsParser::symbolsRule, x3::space, parsedSymbols);
-
-    // Replace layouts with specified and generate new symbols string
-    parsedSymbols.layout = layout;
-    std::string newSymbols = parsedSymbols.x11String();
-
-    // Send it back to X11
-    XkbComponentNamesRec componentNames = {nullptr, nullptr, nullptr, nullptr, newSymbols.data(), nullptr};
-    const std::unique_ptr<XkbDescRec, XlibDeleter> newDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, &componentNames, XkbGBN_ClientSymbolsMask | XkbGBN_KeyNamesMask, 0, false));
-    if (!newDesc)
-        throw std::logic_error("Unable to build keyboard description with the following symbols: " + newSymbols);
-
-    if (!XkbSetMap(m_display.get(), XkbKeySymsMask, newDesc.get()))
-        throw std::logic_error("Unable to set the following symbols: " + newSymbols);
 }
