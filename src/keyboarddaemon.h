@@ -24,6 +24,7 @@
 #include "x11deleters.h"
 #include "shortcut.h"
 #include "windowparameters.h"
+#include "keyboardsymbols.h"
 
 #include <memory>
 #include <unordered_map>
@@ -69,6 +70,7 @@ private:
     std::vector<Shortcut> m_shortcuts;
 
     decltype(m_windows)::iterator m_currentWindow = m_windows.begin();
+    KeyboardSymbols m_currentSymbols;
 };
 
 #endif // KEYBOARDDAEMON_H

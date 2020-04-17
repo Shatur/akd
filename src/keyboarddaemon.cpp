@@ -33,13 +33,18 @@ namespace x3 = boost::spirit::x3;
 
 KeyboardDaemon::KeyboardDaemon()
 {
-    if (!m_display)
-        throw std::runtime_error("Unable to open display");
-
-    // Listen for events
+    // Subscribe for events
     XSelectInput(m_display.get(), m_root, PropertyChangeMask | SubstructureNotifyMask);
     XkbQueryExtension(m_display.get(), nullptr, &m_xkbEventType, nullptr, nullptr, nullptr);
     XkbSelectEvents(m_display.get(), XkbUseCoreKbd, XkbIndicatorStateNotifyMask, XkbIndicatorStateNotifyMask);
+
+    // Parse current keyboard symbols
+    const std::unique_ptr<XkbDescRec, XlibDeleter> currentDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, nullptr, XkbGBN_ServerSymbolsMask | XkbGBN_KeyNamesMask, 0, false));
+    if (!currentDesc)
+        throw std::logic_error("Unable to read keyboard symbols");
+
+    const std::unique_ptr<char [], XlibDeleter> currentSymbols(XGetAtomName(m_display.get(), currentDesc->names->symbols));
+    x3::phrase_parse(currentSymbols.get(), currentSymbols.get() + strlen(currentSymbols.get()), KeyboardSymbolsParser::symbolsRule, x3::space, m_currentSymbols);
 
     saveCurrentGroup();
 }
@@ -139,17 +144,9 @@ void KeyboardDaemon::saveCurrentGroup()
 
 void KeyboardDaemon::setLayout(size_t layoutIndex)
 {
-    // Read info from X11
-    const std::unique_ptr<XkbDescRec, XlibDeleter> currentDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, nullptr, XkbGBN_ServerSymbolsMask | XkbGBN_KeyNamesMask, 0, false));
-    const std::unique_ptr<char [], XlibDeleter> currentSymbols(XGetAtomName(m_display.get(), currentDesc->names->symbols));
-
-    // Parse to structure
-    KeyboardSymbols parsedSymbols;
-    x3::phrase_parse(currentSymbols.get(), currentSymbols.get() + strlen(currentSymbols.get()), KeyboardSymbolsParser::symbolsRule, x3::space, parsedSymbols);
-
     // Replace layouts with specified and generate new symbols string
-    parsedSymbols.layout = m_layouts[layoutIndex];
-    std::string newSymbols = parsedSymbols.x11String();
+    m_currentSymbols.layout = m_layouts[layoutIndex];
+    std::string newSymbols = m_currentSymbols.x11String();
 
     // Send it back to X11
     XkbComponentNamesRec componentNames = {nullptr, nullptr, nullptr, nullptr, newSymbols.data(), nullptr};
