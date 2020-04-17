@@ -31,8 +31,6 @@
 
 namespace x3 = boost::spirit::x3;
 
-constexpr std::string_view activeWindowPropertyName = "_NET_ACTIVE_WINDOW";
-
 KeyboardDaemon::KeyboardDaemon()
 {
     if (!m_display)
@@ -120,11 +118,7 @@ void KeyboardDaemon::processShortcuts(const XKeyEvent &event)
 
 void KeyboardDaemon::applyLayout(const XPropertyEvent &event)
 {
-    if (event.state != PropertyNewValue)
-        return;
-
-    const std::unique_ptr<char [], XlibDeleter> propertyEventName(XGetAtomName(m_display.get(), event.atom));
-    if (propertyEventName.get() != activeWindowPropertyName)
+    if (event.state != PropertyNewValue || event.atom != m_activeWindowProperty)
         return;
 
     const auto [newWindow, inserted] = m_windows.try_emplace(activeWindow());
@@ -175,14 +169,13 @@ void KeyboardDaemon::setGroup(unsigned char group)
 
 Window KeyboardDaemon::activeWindow()
 {
-    const Atom activeWindowProperty = XInternAtom(m_display.get(), activeWindowPropertyName.data(), false);
     Atom type;
     int format;
     unsigned long size;
     unsigned long remainSize;
     unsigned char *bytes;
 
-    XGetWindowProperty(m_display.get(), m_root, activeWindowProperty, 0, 1, false, AnyPropertyType,
+    XGetWindowProperty(m_display.get(), m_root, m_activeWindowProperty, 0, 1, false, AnyPropertyType,
                        &type, &format, &size, &remainSize, &bytes);
 
     std::unique_ptr<unsigned char [], XlibDeleter> cleaner(bytes);

@@ -59,8 +59,9 @@ private:
     [[nodiscard]]
     Window activeWindow();
 
-    std::unique_ptr<Display, DisplayDeleter> m_display{XOpenDisplay(nullptr)};
-    Window m_root{XDefaultRootWindow(m_display.get())};
+    const std::unique_ptr<Display, DisplayDeleter> m_display{XOpenDisplay(nullptr)};
+    const Window m_root{XDefaultRootWindow(m_display.get())};
+    const Atom m_activeWindowProperty{XInternAtom(m_display.get(), "_NET_ACTIVE_WINDOW", false)};
     int m_xkbEventType;
 
     std::unordered_map<Window, WindowParameters> m_windows{{activeWindow(), {}}};
