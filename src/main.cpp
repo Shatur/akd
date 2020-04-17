@@ -30,15 +30,19 @@ namespace fs = std::filesystem;
 
 int main(int argc, char *argv[])
 {
+    fs::path settings;
+    std::vector<std::string> layouts;
+    std::string nextlayout;
+
     po::options_description generic("Options");
     generic.add_options()
             ("help,h", "Prints this message")
-            ("settings,s", po::value<std::string>()->default_value(std::string(getenv("HOME")) + "/.config/akd/akd.conf"), "Path to settings file");
+            ("settings,s", po::value(&settings)->default_value(fs::path(getenv("HOME")) / ".config/akd/akd.conf"), "Path to settings file");
 
     po::options_description configuration("Configuration");
     configuration.add_options()
-            ("general.layouts,l", po::value<std::vector<std::string>>()->multitoken(), "Languages, separated by ','. Can be specified several times to define several layouts.")
-            ("shortcuts.nextlayout,n", po::value<std::string>(), "Switch to next layout");
+            ("general.layouts,l", po::value(&layouts)->multitoken(), "Languages, separated by ','. Can be specified several times to define several layouts.")
+            ("shortcuts.nextlayout,n", po::value(&nextlayout), "Switch to next layout");
 
 
     po::options_description allOptions("Advanced keyboard daemon");
@@ -46,8 +50,9 @@ int main(int argc, char *argv[])
 
     po::variables_map parameters;
     store(parse_command_line(argc, argv, allOptions), parameters);
-    if (fs::exists(parameters["settings"].as<std::string>()))
-        store(parse_config_file(parameters["settings"].as<std::string>().c_str(), configuration), parameters);
+    if (fs::exists(settings))
+        store(parse_config_file(settings.c_str(), configuration), parameters);
+
     if (parameters.count("help")) {
         std::cout << allOptions;
         return 1;
@@ -57,10 +62,8 @@ int main(int argc, char *argv[])
         notify(parameters);
 
         KeyboardDaemon daemon;
-        if (parameters.count("general.layouts"))
-            daemon.setLayouts(parameters["general.layouts"].as<std::vector<std::string>>());
-        if (parameters.count("shortcuts.nextlayout"))
-            daemon.addNextLayoutShortcut(parameters["shortcuts.nextlayout"].as<std::string>());
+        daemon.setLayouts(layouts);
+        daemon.addNextLayoutShortcut(nextlayout);
         daemon.processEvents();
     } catch (std::exception &error) {
         std::cerr << error.what() << '\n';

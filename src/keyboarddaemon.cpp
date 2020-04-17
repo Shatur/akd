@@ -65,7 +65,8 @@ void KeyboardDaemon::setLayouts(const std::vector<std::string> &unsplittedLayout
 
 void KeyboardDaemon::addNextLayoutShortcut(const std::string &shortcut)
 {
-    m_shortcuts.emplace_back(shortcut, *this, &KeyboardDaemon::switchToNextLayout);
+    if (!shortcut.empty())
+        m_shortcuts.emplace_back(shortcut, *this, &KeyboardDaemon::switchToNextLayout);
 }
 
 void KeyboardDaemon::processEvents()
