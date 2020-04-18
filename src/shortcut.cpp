@@ -35,7 +35,7 @@ Shortcut::Shortcut(const std::string &shortcut, KeyboardDaemon &daemon, std::fun
 
     // Need to bind all combinations with CapsLock and ScrollLock to make it work
     for (unsigned specialModifier : additionalModifiers) {
-        if (!XGrabKey(&daemon.display(), m_keycode.value(), m_modmask | specialModifier, daemon.root(), True, GrabModeAsync, GrabModeAsync))
+        if (!XGrabKey(&daemon.display(), m_keycode.value(), m_modmask | specialModifier, daemon.root(), true, GrabModeAsync, GrabModeAsync))
             std::logic_error("Unable to register shortcut " + shortcut);
     }
 }

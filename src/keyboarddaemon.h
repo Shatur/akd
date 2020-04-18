@@ -30,13 +30,12 @@
 #include <unordered_map>
 #include <vector>
 
+class Parameters;
+
 class KeyboardDaemon
 {
 public:
-    KeyboardDaemon();
-
-    void setLayouts(const std::vector<std::string> &unsplittedLayouts);
-    void addNextLayoutShortcut(const std::string &shortcut);
+    explicit KeyboardDaemon(const Parameters &parameters);
 
     [[noreturn]]
     void processEvents();
@@ -54,6 +53,10 @@ private:
     void saveCurrentGroup();
 
     // Helpers
+    void subscribeForEvents();
+    void parseKeyboardSymbols();
+    void loadParameters(const Parameters &parameters);
+
     void setLayout(size_t layoutIndex);
     void setGroup(unsigned char group);
 
@@ -66,11 +69,12 @@ private:
     int m_xkbEventType;
 
     std::unordered_map<Window, WindowParameters> m_windows{{activeWindow(), {}}};
-    std::vector<std::vector<std::string>> m_layouts;
+    std::vector<std::vector<std::string>> m_layoutStrings;
     std::vector<Shortcut> m_shortcuts;
 
     decltype(m_windows)::iterator m_currentWindow = m_windows.begin();
     KeyboardSymbols m_currentSymbols;
+    bool m_printGroups = false;
 };
 
 #endif // KEYBOARDDAEMON_H
