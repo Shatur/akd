@@ -160,12 +160,9 @@ void KeyboardDaemon::setLayout(size_t layoutIndex)
 
     // Send it back to X11
     XkbComponentNamesRec componentNames = {nullptr, nullptr, nullptr, nullptr, newSymbols.data(), nullptr};
-    const std::unique_ptr<XkbDescRec, XlibDeleter> newDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, &componentNames, XkbGBN_ClientSymbolsMask | XkbGBN_KeyNamesMask, 0, false));
+    const std::unique_ptr<XkbDescRec, XlibDeleter> newDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, &componentNames, XkbGBN_ClientSymbolsMask | XkbGBN_KeyNamesMask, 0, true));
     if (!newDesc)
         throw std::logic_error("Unable to build keyboard description with the following symbols: " + newSymbols);
-
-    if (!XkbSetMap(m_display.get(), XkbKeySymsMask, newDesc.get()))
-        throw std::logic_error("Unable to set the following symbols: " + newSymbols);
 }
 
 void KeyboardDaemon::setGroup(unsigned char group)
