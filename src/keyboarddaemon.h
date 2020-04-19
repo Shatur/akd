@@ -30,6 +30,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include <X11/XKBlib.h>
+
 class Parameters;
 
 class KeyboardDaemon
@@ -63,7 +65,7 @@ private:
     [[nodiscard]]
     Window activeWindow();
 
-    const std::unique_ptr<Display, DisplayDeleter> m_display{XOpenDisplay(nullptr)};
+    const std::unique_ptr<Display, DisplayDeleter> m_display{XkbOpenDisplay(nullptr, &m_xkbEventType, nullptr, nullptr, nullptr, nullptr)};
     const Window m_root{XDefaultRootWindow(m_display.get())};
     const Atom m_activeWindowProperty{XInternAtom(m_display.get(), "_NET_ACTIVE_WINDOW", false)};
     int m_xkbEventType;

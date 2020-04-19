@@ -28,8 +28,6 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 
-#include <X11/XKBlib.h>
-
 namespace x3 = boost::spirit::x3;
 
 KeyboardDaemon::KeyboardDaemon(const Parameters &parameters)
@@ -119,7 +117,6 @@ void KeyboardDaemon::saveCurrentGroup()
 void KeyboardDaemon::subscribeForEvents()
 {
     XSelectInput(m_display.get(), m_root, PropertyChangeMask | SubstructureNotifyMask);
-    XkbQueryExtension(m_display.get(), nullptr, &m_xkbEventType, nullptr, nullptr, nullptr);
     XkbSelectEvents(m_display.get(), XkbUseCoreKbd, XkbIndicatorStateNotifyMask, XkbIndicatorStateNotifyMask);
 }
 
