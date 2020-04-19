@@ -34,10 +34,14 @@
 
 class Parameters;
 
+namespace boost::program_options {
+class variables_map;
+}
+
 class KeyboardDaemon
 {
 public:
-    explicit KeyboardDaemon(const Parameters &parameters);
+    explicit KeyboardDaemon(boost::program_options::variables_map &parameters);
 
     [[noreturn]]
     void processEvents();
@@ -55,10 +59,6 @@ private:
     void saveCurrentGroup();
 
     // Helpers
-    void subscribeForEvents();
-    void parseKeyboardSymbols();
-    void loadParameters(const Parameters &parameters);
-
     void setLayout(size_t layoutIndex);
     void setGroup(unsigned char group);
 

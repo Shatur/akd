@@ -20,21 +20,45 @@
 
 #include "keyboarddaemon.h"
 #include "keyboardsymbolsparser.h"
-#include "parameters.h"
 
 #include <iostream>
 
 #include <boost/spirit/home/x3.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/program_options.hpp>
 
 namespace x3 = boost::spirit::x3;
+namespace po = boost::program_options;
 
-KeyboardDaemon::KeyboardDaemon(const Parameters &parameters)
+KeyboardDaemon::KeyboardDaemon(po::variables_map &parameters)
 {
-    subscribeForEvents();
-    parseKeyboardSymbols();
-    loadParameters(parameters);
+    XSelectInput(m_display.get(), m_root, PropertyChangeMask | SubstructureNotifyMask);
+    XkbSelectEvents(m_display.get(), XkbUseCoreKbd, XkbIndicatorStateNotifyMask, XkbIndicatorStateNotifyMask);
+
+    const std::unique_ptr<XkbDescRec, XlibDeleter> currentDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, nullptr, XkbGBN_ServerSymbolsMask | XkbGBN_KeyNamesMask, 0, false));
+    if (!currentDesc)
+        throw std::logic_error("Unable to read keyboard symbols");
+
+    const std::unique_ptr<char [], XlibDeleter> currentSymbols(XGetAtomName(m_display.get(), currentDesc->names->symbols));
+    x3::phrase_parse(currentSymbols.get(), currentSymbols.get() + strlen(currentSymbols.get()), KeyboardSymbolsParser::symbolsRule, x3::space, m_currentSymbols);
+
+    m_printGroups = parameters["general.print-groups"].as<bool>();
+
+    for (const std::string &layout : parameters["general.layouts"].as<std::vector<std::string>>()) {
+        std::vector<std::string> splittedLayouts;
+        boost::split(splittedLayouts, layout, boost::is_any_of(","));
+        m_layoutStrings.push_back(std::move(splittedLayouts));
+    }
+
+    if (!m_layoutStrings.empty())
+        setLayout(0);
+
+    auto it = parameters.find("shortcuts.nextlayout");
+    if (it != parameters.end())
+        m_shortcuts.emplace_back(std::move(it->second.as<std::string &&>()), *this, &KeyboardDaemon::switchToNextLayout);
+
+    saveCurrentGroup();
 }
 
 void KeyboardDaemon::processEvents()
@@ -112,41 +136,6 @@ void KeyboardDaemon::saveCurrentGroup()
 
     if (m_printGroups)
         std::cout << m_layoutStrings[m_currentWindow->second.layoutIndex][m_currentWindow->second.group] << std::endl;
-}
-
-void KeyboardDaemon::subscribeForEvents()
-{
-    XSelectInput(m_display.get(), m_root, PropertyChangeMask | SubstructureNotifyMask);
-    XkbSelectEvents(m_display.get(), XkbUseCoreKbd, XkbIndicatorStateNotifyMask, XkbIndicatorStateNotifyMask);
-}
-
-void KeyboardDaemon::parseKeyboardSymbols()
-{
-    const std::unique_ptr<XkbDescRec, XlibDeleter> currentDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, nullptr, XkbGBN_ServerSymbolsMask | XkbGBN_KeyNamesMask, 0, false));
-    if (!currentDesc)
-        throw std::logic_error("Unable to read keyboard symbols");
-
-    const std::unique_ptr<char [], XlibDeleter> currentSymbols(XGetAtomName(m_display.get(), currentDesc->names->symbols));
-    x3::phrase_parse(currentSymbols.get(), currentSymbols.get() + strlen(currentSymbols.get()), KeyboardSymbolsParser::symbolsRule, x3::space, m_currentSymbols);
-}
-
-void KeyboardDaemon::loadParameters(const Parameters &parameters)
-{
-    m_printGroups = parameters.printGroups();
-
-    for (const std::string &layout : parameters.layouts()) {
-        std::vector<std::string> splittedLayouts;
-        boost::split(splittedLayouts, layout, boost::is_any_of(","));
-        m_layoutStrings.push_back(std::move(splittedLayouts));
-    }
-
-    if (!parameters.nextlayoutShortcut().empty())
-        m_shortcuts.emplace_back(parameters.nextlayoutShortcut(), *this, &KeyboardDaemon::switchToNextLayout);
-
-    if (!m_layoutStrings.empty())
-        setLayout(0);
-
-    saveCurrentGroup();
 }
 
 void KeyboardDaemon::setLayout(size_t layoutIndex)
