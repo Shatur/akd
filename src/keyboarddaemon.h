@@ -33,15 +33,12 @@
 #include <X11/XKBlib.h>
 
 class KeyboardSymbols;
-
-namespace boost::program_options {
-class variables_map;
-}
+class Parameters;
 
 class KeyboardDaemon
 {
 public:
-    explicit KeyboardDaemon(boost::program_options::variables_map &parameters);
+    explicit KeyboardDaemon(int argc, char *argv[]);
 
     [[noreturn]]
     void processEvents();

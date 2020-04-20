@@ -20,6 +20,7 @@
 
 #include "keyboarddaemon.h"
 #include "keyboardsymbolsparser.h"
+#include "parameters.h"
 
 #include <iostream>
 
@@ -31,25 +32,26 @@
 namespace x3 = boost::spirit::x3;
 namespace po = boost::program_options;
 
-KeyboardDaemon::KeyboardDaemon(po::variables_map &parameters)
+KeyboardDaemon::KeyboardDaemon(int argc, char *argv[])
 {
     XSelectInput(m_display.get(), m_root, PropertyChangeMask | SubstructureNotifyMask);
     XkbSelectEvents(m_display.get(), XkbUseCoreKbd, XkbIndicatorStateNotifyMask, XkbIndicatorStateNotifyMask);
 
-    m_printGroups = parameters["general.print-groups"].as<bool>();
+    Parameters parameters(argc, argv);
+
+    m_printGroups = parameters.printGroups().as<bool>();
 
     const KeyboardSymbols serverSymbols = parseServerSymbols();
-    for (const std::string &layout : parameters["general.layouts"].as<std::vector<std::string>>())
-        m_layouts.emplace_back(layout, serverSymbols.options);
-
-    if (m_layouts.empty())
+    if (po::variable_value &layouts = parameters.layouts(); layouts.empty()) {
         m_layouts.emplace_back(boost::join(serverSymbols.groups, ","));
-    else
+    } else {
+        for (std::string &layout : layouts.as<std::vector<std::string>>())
+            m_layouts.emplace_back(std::move(layout), serverSymbols.options);
         setLayout(0);
+    }
 
-    auto it = parameters.find("shortcuts.nextlayout");
-    if (it != parameters.end())
-        m_shortcuts.emplace_back(std::move(it->second.as<std::string &&>()), *this, &KeyboardDaemon::switchToNextLayout);
+    if (const po::variable_value &nextLayout = parameters.nextLayoutShortcut(); !nextLayout.empty())
+        m_shortcuts.emplace_back(nextLayout.as<std::string>(), *this, &KeyboardDaemon::switchToNextLayout);
 
     saveCurrentGroup();
 }
