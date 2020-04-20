@@ -156,7 +156,7 @@ KeyboardSymbols KeyboardDaemon::parseServerSymbols()
 
     KeyboardSymbols symbols;
     const std::unique_ptr<char [], XlibDeleter> currentSymbols(XGetAtomName(m_display.get(), currentDesc->names->symbols));
-    x3::phrase_parse(currentSymbols.get(), currentSymbols.get() + strlen(currentSymbols.get()), KeyboardSymbolsParser::symbolsRule, x3::space, symbols);
+    x3::parse(currentSymbols.get(), currentSymbols.get() + strlen(currentSymbols.get()), KeyboardSymbolsParser::symbolsRule, symbols);
 
     return symbols;
 }
