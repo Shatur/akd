@@ -24,7 +24,7 @@
 #include "x11deleters.h"
 #include "shortcut.h"
 #include "windowparameters.h"
-#include "keyboardsymbols.h"
+#include "layout.h"
 
 #include <memory>
 #include <unordered_map>
@@ -32,7 +32,7 @@
 
 #include <X11/XKBlib.h>
 
-class Parameters;
+class KeyboardSymbols;
 
 namespace boost::program_options {
 class variables_map;
@@ -61,6 +61,7 @@ private:
     // Helpers
     void setLayout(size_t layoutIndex);
     void setGroup(unsigned char group);
+    KeyboardSymbols parseServerSymbols();
 
     [[nodiscard]]
     Window activeWindow();
@@ -71,11 +72,12 @@ private:
     int m_xkbEventType;
 
     std::unordered_map<Window, WindowParameters> m_windows{{activeWindow(), {}}};
-    std::vector<std::vector<std::string>> m_layoutStrings;
+    std::vector<Layout> m_layouts;
     std::vector<Shortcut> m_shortcuts;
 
+    XkbComponentNamesRec m_currentComponents{};
+
     decltype(m_windows)::iterator m_currentWindow = m_windows.begin();
-    KeyboardSymbols m_currentSymbols;
     bool m_printGroups = false;
 };
 

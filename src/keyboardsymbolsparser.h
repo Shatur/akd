@@ -1,10 +1,18 @@
 #ifndef KEYBOARDSYMBOLSPARSER_H
 #define KEYBOARDSYMBOLSPARSER_H
 
-#include "keyboardsymbols.h"
-
 #include <boost/spirit/home/x3.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
+
+struct KeyboardSymbols
+{
+    std::vector<std::string> groups;
+    std::vector<std::string> options;
+};
+
+BOOST_FUSION_ADAPT_STRUCT(KeyboardSymbols,
+    groups, options
+)
 
 namespace KeyboardSymbolsParser
 {
@@ -21,9 +29,5 @@ namespace KeyboardSymbolsParser
 
     BOOST_SPIRIT_DEFINE(symbolsRule, groupsRule, optionsRule);
 }
-
-BOOST_FUSION_ADAPT_STRUCT(KeyboardSymbols,
-    groups, options
-)
 
 #endif // KEYBOARDSYMBOLSPARSER_H
