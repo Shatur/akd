@@ -6,7 +6,7 @@
 
 struct KeyboardSymbols
 {
-    std::vector<std::string> layout;
+    std::vector<std::string> groups;
     std::vector<std::string> options;
 
     std::string x11String() const;

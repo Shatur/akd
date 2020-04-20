@@ -141,7 +141,7 @@ void KeyboardDaemon::saveCurrentGroup()
 void KeyboardDaemon::setLayout(size_t layoutIndex)
 {
     // Replace layouts with specified and generate new symbols string
-    m_currentSymbols.layout = m_layoutStrings[layoutIndex];
+    m_currentSymbols.groups = m_layoutStrings[layoutIndex];
     std::string newSymbols = m_currentSymbols.x11String();
 
     // Send it back to X11
