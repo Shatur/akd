@@ -30,14 +30,14 @@ Shortcut::Shortcut(const std::string &shortcut, KeyboardDaemon &daemon, std::fun
     : m_daemon(daemon)
     , m_callback(std::move(callback))
 {
-    const boost::tokenizer keys(shortcut, boost::char_separator<char>("+-"));
+    const boost::tokenizer keys(shortcut, boost::char_separator<char>("+"));
 
     for (auto it = keys.begin(); it != keys.end(); ++it) {
         if (it.current_token() == "Ctrl") {
             m_modmask |= ControlMask;
         } else if (it.current_token() == "Alt") {
             m_modmask |= Mod1Mask;
-        } else if (it.current_token() == "Win") {
+        } else if (it.current_token() == "Meta") {
             m_modmask |= Mod4Mask;
         } else if (it.current_token() == "Shift") {
             m_modmask |= ShiftMask;
