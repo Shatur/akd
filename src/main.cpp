@@ -19,6 +19,7 @@
  */
 
 #include "keyboarddaemon.h"
+#include "parameters.h"
 
 #include <boost/program_options.hpp>
 
@@ -31,7 +32,9 @@ namespace fs = std::filesystem;
 int main(int argc, char *argv[])
 {
     try {
-        KeyboardDaemon daemon(argc, argv);
+        Parameters parameters(argc, argv);
+
+        KeyboardDaemon daemon(parameters);
         daemon.processEvents();
     } catch (std::exception &error) {
         std::cerr << error.what() << '\n';

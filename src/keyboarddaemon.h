@@ -31,11 +31,12 @@
 #include <unordered_map>
 
 class KeyboardSymbols;
+class Parameters;
 
 class KeyboardDaemon
 {
 public:
-    explicit KeyboardDaemon(int argc, char *argv[]);
+    explicit KeyboardDaemon(Parameters &parameters);
 
     [[noreturn]] void processEvents();
 

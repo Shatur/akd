@@ -34,12 +34,10 @@
 namespace x3 = boost::spirit::x3;
 namespace po = boost::program_options;
 
-KeyboardDaemon::KeyboardDaemon(int argc, char *argv[])
+KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
 {
     XSelectInput(m_display.get(), m_root, PropertyChangeMask | SubstructureNotifyMask);
     XkbSelectEvents(m_display.get(), XkbUseCoreKbd, XkbIndicatorStateNotifyMask, XkbIndicatorStateNotifyMask);
-
-    Parameters parameters(argc, argv);
 
     m_printGroups = parameters.printGroups();
 

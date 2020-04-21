@@ -30,21 +30,20 @@ namespace fs = std::filesystem;
 
 Parameters::Parameters(int argc, char *argv[])
 {
-    po::options_description generic("Options");
-    generic.add_options()
-            ("help,h", "Prints this message")
-            ("settings,s", po::value<fs::path>()->default_value(fs::path(getenv("HOME")) / ".config/akd/akd.conf"), "Path to settings file");
+    po::options_description commands("Commands");
+    commands.add_options()
+            ("help,h", "Prints this message.")
+            ("settings,s", po::value<fs::path>()->value_name("path")->default_value(fs::path(getenv("HOME")) / ".config/akd/akd.conf"), "Path to settings file.");
 
     po::options_description configuration("Configuration");
     configuration.add_options()
-            ("general.print-groups,p", po::bool_switch(), "Print switched languages in stdout")
-            ("general.skip-rules,r", po::bool_switch(), "Do not update keyboard rules, useful if you use only this program to work with keyboard")
-            ("general.layouts,l", po::value<std::vector<std::string>>()->multitoken(), "Languages, separated by ','. Can be specified several times to define several layouts.")
-            ("shortcuts.nextlayout,n", po::value<std::string>(), "Switch to next layout");
+            ("general.print-groups,p", po::bool_switch(), "Print switched languages in stdout.")
+            ("general.skip-rules,r", po::bool_switch(), "Do not update keyboard rules, useful if you use only this program to work with keyboard.")
+            ("general.layouts,l", po::value<std::vector<std::string>>()->multitoken(), "Languages separated by ','. Can be specified several times to define several layouts.")
+            ("shortcuts.nextlayout,n", po::value<std::string>(), "Switch to next layout.");
 
-
-    po::options_description allOptions("Advanced keyboard daemon");
-    allOptions.add(generic).add(configuration);
+    po::options_description allOptions;
+    allOptions.add(commands).add(configuration);
 
     store(parse_command_line(argc, argv, allOptions), m_parameters);
 
@@ -52,7 +51,7 @@ Parameters::Parameters(int argc, char *argv[])
         store(parse_config_file(settingsPath.c_str(), configuration), m_parameters);
 
     if (m_parameters.count("help")) {
-        std::cout << allOptions;
+        std::cout << "Usage: "  << argv[0] << " [options]" << allOptions;
         std::exit(1);
     }
 
