@@ -1,7 +1,7 @@
 #include "layout.h"
 
-#include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/join.hpp>
+#include <boost/tokenizer.hpp>
 
 Layout::Layout(std::string layout, const std::vector<std::string> &options)
     : layoutString(std::move(layout))

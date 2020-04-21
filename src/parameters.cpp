@@ -2,8 +2,8 @@
 
 #include <boost/program_options.hpp>
 
-#include <iostream>
 #include <filesystem>
+#include <iostream>
 
 namespace po = boost::program_options;
 namespace fs = std::filesystem;

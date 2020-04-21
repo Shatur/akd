@@ -19,23 +19,22 @@
  */
 
 #include "keyboarddaemon.h"
-#include "parameters.h"
 
 #include <boost/program_options.hpp>
 
-#include <iostream>
 #include <filesystem>
+#include <iostream>
 
 namespace po = boost::program_options;
 namespace fs = std::filesystem;
 
 int main(int argc, char *argv[])
 {
-//    try {
+    try {
         KeyboardDaemon daemon(argc, argv);
         daemon.processEvents();
-//    } catch (std::exception &error) {
-//        std::cerr << error.what() << '\n';
-//        return 1;
-//    }
+    } catch (std::exception &error) {
+        std::cerr << error.what() << '\n';
+        return 1;
+    }
 }

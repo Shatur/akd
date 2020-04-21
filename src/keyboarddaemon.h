@@ -21,16 +21,14 @@
 #ifndef KEYBOARDDAEMON_H
 #define KEYBOARDDAEMON_H
 
-#include "x11deleters.h"
-#include "shortcut.h"
 #include "keyboard.h"
 #include "layout.h"
-
-#include <memory>
-#include <unordered_map>
-#include <vector>
+#include "shortcut.h"
+#include "x11deleters.h"
 
 #include <X11/XKBlib.h>
+#include <memory>
+#include <unordered_map>
 
 class KeyboardSymbols;
 
@@ -39,8 +37,7 @@ class KeyboardDaemon
 public:
     explicit KeyboardDaemon(int argc, char *argv[]);
 
-    [[noreturn]]
-    void processEvents();
+    [[noreturn]] void processEvents();
 
     Display &display() const;
     Window root() const;
@@ -61,9 +58,7 @@ private:
 
     void printGroupName(unsigned char group, std::optional<size_t> layoutIndex = std::nullopt) const;
     KeyboardSymbols serverSymbols() const;
-
-    [[nodiscard]]
-    Window activeWindow() const;
+    [[nodiscard]] Window activeWindow() const;
 
     const std::unique_ptr<Display, DisplayDeleter> m_display{XkbOpenDisplay(nullptr, &m_xkbEventType, nullptr, nullptr, nullptr, nullptr)};
     const Window m_root = XDefaultRootWindow(m_display.get());
@@ -76,7 +71,7 @@ private:
 
     XkbComponentNamesRec m_currentComponents{};
     std::unique_ptr<XkbRF_VarDefsRec, VarDefsDeleter> m_currentVarDefs;
-    std::unique_ptr<char [], XlibDeleter> m_currentRulesPath;
+    std::unique_ptr<char[], XlibDeleter> m_currentRulesPath;
 
     decltype(m_windows)::iterator m_currentWindow = m_windows.begin();
     bool m_ignoreNextLayoutSave = false;

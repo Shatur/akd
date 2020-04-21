@@ -1,8 +1,8 @@
 #ifndef SHORTCUT_H
 #define SHORTCUT_H
 
-#include <string>
 #include <functional>
+#include <string>
 
 #include <X11/Xlib.h>
 

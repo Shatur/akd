@@ -1,8 +1,8 @@
 #ifndef KEYBOARDSYMBOLSPARSER_H
 #define KEYBOARDSYMBOLSPARSER_H
 
-#include <boost/spirit/home/x3.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
+#include <boost/spirit/home/x3.hpp>
 
 struct KeyboardSymbols
 {

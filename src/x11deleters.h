@@ -36,5 +36,4 @@ using DisplayDeleter = Deleter<XCloseDisplay>;
 using XlibDeleter = Deleter<XFree>;
 using VarDefsDeleter = Deleter<freeVarDefsComponents>;
 
-
 #endif // X11DELETERS_H

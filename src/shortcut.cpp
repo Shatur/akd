@@ -1,4 +1,5 @@
 #include "shortcut.h"
+
 #include "keyboarddaemon.h"
 
 #include <boost/tokenizer.hpp>

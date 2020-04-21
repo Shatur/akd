@@ -19,17 +19,16 @@
  */
 
 #include "keyboarddaemon.h"
+
 #include "keyboardsymbolsparser.h"
 #include "parameters.h"
 
-#include <boost/spirit/home/x3.hpp>
 #include <boost/algorithm/string/join.hpp>
-#include <boost/algorithm/string/classification.hpp>
 #include <boost/program_options.hpp>
+#include <boost/spirit/home/x3.hpp>
 
 #include <iostream>
 
-#include <X11/XKBlib.h>
 #include <X11/extensions/XKBrules.h>
 
 namespace x3 = boost::spirit::x3;
@@ -144,7 +143,6 @@ void KeyboardDaemon::saveCurrentGroup()
 
     printGroupName(state.group);
     m_currentWindow->second.group = state.group;
-
 }
 
 void KeyboardDaemon::setLayout(size_t layoutIndex)
