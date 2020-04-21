@@ -41,21 +41,21 @@ KeyboardDaemon::KeyboardDaemon(int argc, char *argv[])
 
     Parameters parameters(argc, argv);
 
-    m_printGroups = parameters.printGroups().as<bool>();
+    m_printGroups = parameters.printGroups();
 
     const KeyboardSymbols symbols = serverSymbols();
-    if (po::variable_value &layouts = parameters.layouts(); layouts.empty()) {
-        m_layouts.emplace_back(boost::join(symbols.groups, ","));
-    } else {
-        for (std::string &layout : layouts.as<std::vector<std::string>>())
+    if (std::optional<std::vector<std::string>> layouts = parameters.layouts()) {
+        for (std::string &layout : layouts.value())
             m_layouts.emplace_back(std::move(layout), symbols.options);
-        if (!parameters.skipRules().as<bool>())
+        if (!parameters.skipRules())
             readKeyboardRules();
         setLayout(0);
+    } else {
+        m_layouts.emplace_back(boost::join(symbols.groups, ","));
     }
 
-    if (const po::variable_value &nextLayout = parameters.nextLayoutShortcut(); !nextLayout.empty())
-        m_shortcuts.emplace_back(nextLayout.as<std::string>(), *this, &KeyboardDaemon::switchToNextLayout);
+    if (const std::optional<std::string> nextLayout = parameters.nextLayoutShortcut())
+        m_shortcuts.emplace_back(nextLayout.value(), *this, &KeyboardDaemon::switchToNextLayout);
 
     saveCurrentGroup();
 }

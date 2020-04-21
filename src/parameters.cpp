@@ -39,22 +39,31 @@ Parameters::Parameters(int argc, char *argv[])
     notify(m_parameters);
 }
 
-boost::program_options::variable_value &Parameters::printGroups()
+bool Parameters::printGroups() const
 {
-    return m_parameters.at("general.print-groups");
+    return m_parameters["general.print-groups"].as<bool>();
 }
 
-boost::program_options::variable_value &Parameters::skipRules()
+bool Parameters::skipRules() const
 {
-    return m_parameters.at("general.skip-rules");
+    return m_parameters["general.skip-rules"].as<bool>();
 }
 
-boost::program_options::variable_value &Parameters::layouts()
+std::optional<std::vector<std::string>> Parameters::layouts()
 {
-    return m_parameters.at("general.layouts");
+    return findOptional<std::vector<std::string>>("general.layouts");
 }
 
-boost::program_options::variable_value &Parameters::nextLayoutShortcut()
+std::optional<std::string> Parameters::nextLayoutShortcut()
 {
-    return m_parameters.at("shortcuts.nextlayout");
+    return findOptional<std::string>("shortcuts.nextlayout");
+}
+
+template<typename T, typename Key>
+std::optional<T> Parameters::findOptional(Key key)
+{
+    auto it = m_parameters.find(key);
+    if (it != m_parameters.end())
+        return boost::any_cast<T &&>(it->second.value());
+    return std::nullopt;
 }

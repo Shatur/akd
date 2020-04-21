@@ -8,13 +8,16 @@ class Parameters
 public:
     Parameters(int argc, char *argv[]);
 
-    boost::program_options::variable_value &printGroups();
-    boost::program_options::variable_value &skipRules();
-    boost::program_options::variable_value &layouts();
+    bool printGroups() const;
+    bool skipRules() const;
 
-    boost::program_options::variable_value &nextLayoutShortcut();
+    std::optional<std::vector<std::string>> layouts();
+    std::optional<std::string> nextLayoutShortcut();
 
 private:
+    template<typename T, typename Key>
+    std::optional<T> findOptional(Key key);
+
     boost::program_options::variables_map m_parameters;
 };
 
