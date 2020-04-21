@@ -13,9 +13,10 @@ add_executable(${PROJECT_NAME}
     src/keyboarddaemon.cpp
     src/shortcut.cpp
     src/layout.cpp
+    src/x11deleters.cpp
     src/parameters.cpp
     )
 
-target_link_libraries(${PROJECT_NAME} Boost::program_options X11::X11)
+target_link_libraries(${PROJECT_NAME} Boost::program_options X11::X11 X11::xkbfile)
 
 install(TARGETS ${PROJECT_NAME})

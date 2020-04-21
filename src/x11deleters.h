@@ -22,13 +22,19 @@
 #define X11DELETERS_H
 
 #include <type_traits>
+
 #include <X11/Xlib.h>
+
+class _XkbRF_VarDefs;
+using XkbRF_VarDefsRec = _XkbRF_VarDefs;
+void freeVarDefsComponents(XkbRF_VarDefsRec *varDefs);
 
 template<auto Func>
 using Deleter = std::integral_constant<std::decay_t<decltype(Func)>, Func>;
 
 using DisplayDeleter = Deleter<XCloseDisplay>;
 using XlibDeleter = Deleter<XFree>;
+using VarDefsDeleter = Deleter<freeVarDefsComponents>;
 
 
 #endif // X11DELETERS_H

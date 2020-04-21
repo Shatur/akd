@@ -57,15 +57,17 @@ private:
     // Helpers
     void setLayout(size_t layoutIndex);
     void setGroup(unsigned char group);
-    void printGroupName(unsigned char group, std::optional<size_t> layoutIndex = std::nullopt);
-    KeyboardSymbols parseServerSymbols();
+    void readKeyboardRules();
+
+    void printGroupName(unsigned char group, std::optional<size_t> layoutIndex = std::nullopt) const;
+    KeyboardSymbols serverSymbols() const;
 
     [[nodiscard]]
-    Window activeWindow();
+    Window activeWindow() const;
 
     const std::unique_ptr<Display, DisplayDeleter> m_display{XkbOpenDisplay(nullptr, &m_xkbEventType, nullptr, nullptr, nullptr, nullptr)};
-    const Window m_root{XDefaultRootWindow(m_display.get())};
-    const Atom m_activeWindowProperty{XInternAtom(m_display.get(), "_NET_ACTIVE_WINDOW", false)};
+    const Window m_root = XDefaultRootWindow(m_display.get());
+    const Atom m_activeWindowProperty = XInternAtom(m_display.get(), "_NET_ACTIVE_WINDOW", false);
     int m_xkbEventType;
 
     std::unordered_map<Window, Keyboard> m_windows{{activeWindow(), {}}};
@@ -73,9 +75,11 @@ private:
     std::vector<Shortcut> m_shortcuts;
 
     XkbComponentNamesRec m_currentComponents{};
+    std::unique_ptr<XkbRF_VarDefsRec, VarDefsDeleter> m_currentVarDefs;
+    std::unique_ptr<char [], XlibDeleter> m_currentRulesPath;
+
     decltype(m_windows)::iterator m_currentWindow = m_windows.begin();
     bool m_ignoreNextLayoutSave = false;
-
     bool m_printGroups = false;
 };
 

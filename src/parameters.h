@@ -9,6 +9,7 @@ public:
     Parameters(int argc, char *argv[]);
 
     boost::program_options::variable_value &printGroups();
+    boost::program_options::variable_value &skipRules();
     boost::program_options::variable_value &layouts();
 
     boost::program_options::variable_value &nextLayoutShortcut();

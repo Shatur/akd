@@ -29,6 +29,9 @@
 
 #include <iostream>
 
+#include <X11/XKBlib.h>
+#include <X11/extensions/XKBrules.h>
+
 namespace x3 = boost::spirit::x3;
 namespace po = boost::program_options;
 
@@ -41,12 +44,14 @@ KeyboardDaemon::KeyboardDaemon(int argc, char *argv[])
 
     m_printGroups = parameters.printGroups().as<bool>();
 
-    const KeyboardSymbols serverSymbols = parseServerSymbols();
+    const KeyboardSymbols symbols = serverSymbols();
     if (po::variable_value &layouts = parameters.layouts(); layouts.empty()) {
-        m_layouts.emplace_back(boost::join(serverSymbols.groups, ","));
+        m_layouts.emplace_back(boost::join(symbols.groups, ","));
     } else {
         for (std::string &layout : layouts.as<std::vector<std::string>>())
-            m_layouts.emplace_back(std::move(layout), serverSymbols.options);
+            m_layouts.emplace_back(std::move(layout), symbols.options);
+        if (!parameters.skipRules().as<bool>())
+            readKeyboardRules();
         setLayout(0);
     }
 
@@ -151,6 +156,12 @@ void KeyboardDaemon::setLayout(size_t layoutIndex)
     const std::unique_ptr<XkbDescRec, XlibDeleter> newDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, &m_currentComponents, XkbGBN_ClientSymbolsMask | XkbGBN_KeyNamesMask, 0, true));
     if (!newDesc)
         throw std::logic_error("Unable to build keyboard description with the following symbols: " + m_layouts[layoutIndex].symbols);
+
+    if (m_currentVarDefs) {
+        m_currentVarDefs->layout = m_layouts[layoutIndex].layoutString.data();
+        if (!XkbRF_SetNamesProp(m_display.get(), m_currentRulesPath.get(), m_currentVarDefs.get()))
+            throw std::logic_error("Unable to set keyboard rules for " + m_layouts[layoutIndex].symbols);
+    }
 }
 
 void KeyboardDaemon::setGroup(unsigned char group)
@@ -162,7 +173,7 @@ void KeyboardDaemon::setGroup(unsigned char group)
     m_ignoreNextLayoutSave = true;
 }
 
-void KeyboardDaemon::printGroupName(unsigned char group, std::optional<size_t> layoutIndex)
+void KeyboardDaemon::printGroupName(unsigned char group, std::optional<size_t> layoutIndex) const
 {
     if (!m_printGroups)
         return;
@@ -178,11 +189,26 @@ void KeyboardDaemon::printGroupName(unsigned char group, std::optional<size_t> l
         std::cout << newGroupName << std::endl;
 }
 
-KeyboardSymbols KeyboardDaemon::parseServerSymbols()
+void KeyboardDaemon::readKeyboardRules()
+{
+    char *path;
+    m_currentVarDefs.reset(new XkbRF_VarDefsRec);
+
+    if (!XkbRF_GetNamesProp(m_display.get(), &path, m_currentVarDefs.get()))
+        throw std::logic_error("Unable to get keyboard rules");
+
+    m_currentRulesPath.reset(path);
+
+    // Free layout because it will be replaced with pointer to std::string
+    if (m_currentVarDefs->layout)
+        XFree(m_currentVarDefs->layout);
+}
+
+KeyboardSymbols KeyboardDaemon::serverSymbols() const
 {
     const std::unique_ptr<XkbDescRec, XlibDeleter> currentDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, nullptr, XkbGBN_ServerSymbolsMask | XkbGBN_KeyNamesMask, 0, false));
     if (!currentDesc)
-        throw std::logic_error("Unable to read keyboard symbols");
+        throw std::logic_error("Unable to get keyboard symbols");
 
     KeyboardSymbols symbols;
     const std::unique_ptr<char [], XlibDeleter> currentSymbols(XGetAtomName(m_display.get(), currentDesc->names->symbols));
@@ -191,7 +217,7 @@ KeyboardSymbols KeyboardDaemon::parseServerSymbols()
     return symbols;
 }
 
-Window KeyboardDaemon::activeWindow()
+Window KeyboardDaemon::activeWindow() const
 {
     Atom type;
     int format;

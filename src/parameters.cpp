@@ -18,6 +18,7 @@ Parameters::Parameters(int argc, char *argv[])
     po::options_description configuration("Configuration");
     configuration.add_options()
             ("general.print-groups,p", po::bool_switch(), "Print switched languages in stdout")
+            ("general.skip-rules,r", po::bool_switch(), "Do not update keyboard rules, useful if you use only this program to work with keyboard")
             ("general.layouts,l", po::value<std::vector<std::string>>()->multitoken(), "Languages, separated by ','. Can be specified several times to define several layouts.")
             ("shortcuts.nextlayout,n", po::value<std::string>(), "Switch to next layout");
 
@@ -41,6 +42,11 @@ Parameters::Parameters(int argc, char *argv[])
 boost::program_options::variable_value &Parameters::printGroups()
 {
     return m_parameters.at("general.print-groups");
+}
+
+boost::program_options::variable_value &Parameters::skipRules()
+{
+    return m_parameters.at("general.skip-rules");
 }
 
 boost::program_options::variable_value &Parameters::layouts()
