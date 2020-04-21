@@ -22,12 +22,12 @@
 #include "keyboardsymbolsparser.h"
 #include "parameters.h"
 
-#include <iostream>
-
 #include <boost/spirit/home/x3.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/program_options.hpp>
+
+#include <iostream>
 
 namespace x3 = boost::spirit::x3;
 namespace po = boost::program_options;
@@ -67,7 +67,7 @@ void KeyboardDaemon::processEvents()
             removeDestroyedWindow(event.xdestroywindow);
             break;
         case PropertyNotify:
-            applyLayout(event.xproperty);
+            applyWindowLayout(event.xproperty);
             break;
         case KeyPress:
             processShortcuts(event.xkey);
@@ -91,11 +91,14 @@ Window KeyboardDaemon::root() const
 
 void KeyboardDaemon::switchToNextLayout()
 {
-    m_currentWindow->second.layoutIndex += 1;
-    if (m_currentWindow->second.layoutIndex >= m_layouts.size())
-        m_currentWindow->second.layoutIndex = 0;
+    size_t layoutIndex = m_currentWindow->second.layoutIndex + 1;
+    if (layoutIndex >= m_layouts.size())
+        layoutIndex = 0;
 
-    setLayout(m_currentWindow->second.layoutIndex);
+    setLayout(layoutIndex);
+
+    printGroupName(m_currentWindow->second.group, layoutIndex);
+    m_currentWindow->second.layoutIndex = layoutIndex;
 }
 
 void KeyboardDaemon::removeDestroyedWindow(const XDestroyWindowEvent &event)
@@ -109,7 +112,7 @@ void KeyboardDaemon::processShortcuts(const XKeyEvent &event)
         shortcut.processEvent(event);
 }
 
-void KeyboardDaemon::applyLayout(const XPropertyEvent &event)
+void KeyboardDaemon::applyWindowLayout(const XPropertyEvent &event)
 {
     if (event.state != PropertyNewValue || event.atom != m_activeWindowProperty)
         return;
@@ -119,18 +122,24 @@ void KeyboardDaemon::applyLayout(const XPropertyEvent &event)
         setLayout(newWindow->second.layoutIndex);
     if (newWindow->second.group != m_currentWindow->second.group)
         setGroup(newWindow->second.group);
+
+    printGroupName(newWindow->second.group, newWindow->second.layoutIndex);
     m_currentWindow = newWindow;
 }
 
 void KeyboardDaemon::saveCurrentGroup()
 {
+    if (m_ignoreNextLayoutSave) {
+        m_ignoreNextLayoutSave = false;
+        return;
+    }
+
     XkbStateRec state;
     XkbGetState(m_display.get(), XkbUseCoreKbd, &state);
 
+    printGroupName(state.group);
     m_currentWindow->second.group = state.group;
 
-    if (m_printGroups)
-        std::cout << m_layouts[m_currentWindow->second.layoutIndex].groupName(m_currentWindow->second.group) << std::endl;
 }
 
 void KeyboardDaemon::setLayout(size_t layoutIndex)
@@ -148,6 +157,25 @@ void KeyboardDaemon::setGroup(unsigned char group)
 {
     if (!XkbLockGroup(m_display.get(), XkbUseCoreKbd, group))
         throw std::logic_error("Unable to switch group to " + std::to_string(group));
+
+    // This will produce xkb event, ignore it
+    m_ignoreNextLayoutSave = true;
+}
+
+void KeyboardDaemon::printGroupName(unsigned char group, std::optional<size_t> layoutIndex)
+{
+    if (!m_printGroups)
+        return;
+
+    if (!layoutIndex) {
+        std::cout << m_layouts[m_currentWindow->second.layoutIndex].groupName(group) << std::endl;
+        return;
+    }
+
+    const std::string_view newGroupName = m_layouts[layoutIndex.value()].groupName(group);
+    const std::string_view currentGroupName = m_layouts[m_currentWindow->second.layoutIndex].groupName(m_currentWindow->second.group);
+    if (newGroupName != currentGroupName)
+        std::cout << newGroupName << std::endl;
 }
 
 KeyboardSymbols KeyboardDaemon::parseServerSymbols()

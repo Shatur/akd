@@ -23,7 +23,7 @@
 
 #include "x11deleters.h"
 #include "shortcut.h"
-#include "windowparameters.h"
+#include "keyboard.h"
 #include "layout.h"
 
 #include <memory>
@@ -33,7 +33,6 @@
 #include <X11/XKBlib.h>
 
 class KeyboardSymbols;
-class Parameters;
 
 class KeyboardDaemon
 {
@@ -50,7 +49,7 @@ public:
 
 private:
     // Event handlers
-    void applyLayout(const XPropertyEvent &event);
+    void applyWindowLayout(const XPropertyEvent &event);
     void removeDestroyedWindow(const XDestroyWindowEvent &event);
     void processShortcuts(const XKeyEvent &event);
     void saveCurrentGroup();
@@ -58,6 +57,7 @@ private:
     // Helpers
     void setLayout(size_t layoutIndex);
     void setGroup(unsigned char group);
+    void printGroupName(unsigned char group, std::optional<size_t> layoutIndex = std::nullopt);
     KeyboardSymbols parseServerSymbols();
 
     [[nodiscard]]
@@ -68,13 +68,14 @@ private:
     const Atom m_activeWindowProperty{XInternAtom(m_display.get(), "_NET_ACTIVE_WINDOW", false)};
     int m_xkbEventType;
 
-    std::unordered_map<Window, WindowParameters> m_windows{{activeWindow(), {}}};
+    std::unordered_map<Window, Keyboard> m_windows{{activeWindow(), {}}};
     std::vector<Layout> m_layouts;
     std::vector<Shortcut> m_shortcuts;
 
     XkbComponentNamesRec m_currentComponents{};
-
     decltype(m_windows)::iterator m_currentWindow = m_windows.begin();
+    bool m_ignoreNextLayoutSave = false;
+
     bool m_printGroups = false;
 };
 
