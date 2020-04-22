@@ -36,6 +36,8 @@
 
 | Option                             | Description                                                                              |
 | ---------------------------------- | ---------------------------------------------------------------------------------------- |
+| -g [ --general.different-groups ]  | Use different groups for each window.                                                    |
+| -a [ --general.different-layout ]  | Use different layouts for each window.                                                   |
 | -p [ --general.print-groups ]      | Print switched languages in stdout.                                                      |
 | -r [ --general.skip-rules ]        | Do not update keyboard rules, useful if you use only this program to work with keyboard. |
 | -l [ --general.layouts ] arg       | Languages separated by ','. Can be specified several times to define several layouts.    |

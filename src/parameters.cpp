@@ -37,6 +37,8 @@ Parameters::Parameters(int argc, char *argv[])
 
     po::options_description configuration("Configuration");
     configuration.add_options()
+            ("general.different-groups,g", po::bool_switch(), "Use different groups for each window.")
+            ("general.different-layout,a", po::bool_switch(), "Use different layouts for each window.")
             ("general.print-groups,p", po::bool_switch(), "Print switched languages in stdout.")
             ("general.skip-rules,r", po::bool_switch(), "Do not update keyboard rules, useful if you use only this program to work with keyboard.")
             ("general.layouts,l", po::value<std::vector<std::string>>()->multitoken(), "Languages separated by ','. Can be specified several times to define several layouts.")
@@ -56,6 +58,16 @@ Parameters::Parameters(int argc, char *argv[])
     }
 
     notify(m_parameters);
+}
+
+bool Parameters::useDifferentGroups() const
+{
+    return m_parameters["general.different-groups"].as<bool>();
+}
+
+bool Parameters::useDifferentLayouts() const
+{
+    return m_parameters["general.different-layout"].as<bool>();
 }
 
 bool Parameters::printGroups() const

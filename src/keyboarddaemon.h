@@ -78,7 +78,9 @@ private:
 
     decltype(m_windows)::iterator m_currentWindow = m_windows.begin();
     bool m_ignoreNextLayoutSave = false;
-    bool m_printGroups = false;
+    bool m_useDifferentGroups;
+    bool m_useDifferentLayouts;
+    bool m_printGroups;
 };
 
 #endif // KEYBOARDDAEMON_H

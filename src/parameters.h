@@ -28,6 +28,8 @@ class Parameters
 public:
     Parameters(int argc, char *argv[]);
 
+    bool useDifferentGroups() const;
+    bool useDifferentLayouts() const;
     bool printGroups() const;
     bool skipRules() const;
 

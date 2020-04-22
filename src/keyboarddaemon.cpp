@@ -32,15 +32,12 @@
 #include <X11/extensions/XKBrules.h>
 
 namespace x3 = boost::spirit::x3;
-namespace po = boost::program_options;
 
 KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
+    : m_useDifferentGroups(parameters.useDifferentGroups())
+    , m_useDifferentLayouts(parameters.useDifferentLayouts())
+    , m_printGroups(parameters.printGroups())
 {
-    XSelectInput(m_display.get(), m_root, PropertyChangeMask | SubstructureNotifyMask);
-    XkbSelectEventDetails(m_display.get(), XkbUseCoreKbd, XkbStateNotify, XkbAllStateComponentsMask, XkbGroupStateMask);
-
-    m_printGroups = parameters.printGroups();
-
     const KeyboardSymbols symbols = serverSymbols();
     if (std::optional<std::vector<std::string>> layouts = parameters.layouts()) {
         for (std::string &layout : layouts.value())
@@ -54,6 +51,10 @@ KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
 
     if (const std::optional<std::string> nextLayout = parameters.nextLayoutShortcut())
         m_shortcuts.emplace_back(nextLayout.value(), *this, &KeyboardDaemon::switchToNextLayout);
+
+    XkbSelectEventDetails(m_display.get(), XkbUseCoreKbd, XkbStateNotify, XkbAllStateComponentsMask, XkbGroupStateMask);
+    if (m_useDifferentGroups || m_useDifferentLayouts)
+        XSelectInput(m_display.get(), m_root, PropertyChangeMask | SubstructureNotifyMask); // Listen for current window change events
 
     readCurrentGroup();
 }
@@ -120,10 +121,19 @@ void KeyboardDaemon::applyWindowLayout(const XPropertyEvent &event)
         return;
 
     const auto [newWindow, inserted] = m_windows.try_emplace(activeWindow());
-    if (newWindow->second.layoutIndex != m_currentWindow->second.layoutIndex)
-        setLayout(newWindow->second.layoutIndex);
-    if (newWindow->second.group != m_currentWindow->second.group)
-        setGroup(newWindow->second.group);
+    if (m_useDifferentLayouts) {
+        if (newWindow->second.layoutIndex != m_currentWindow->second.layoutIndex)
+            setLayout(newWindow->second.layoutIndex);
+    } else {
+        newWindow->second.layoutIndex = m_currentWindow->second.layoutIndex;
+    }
+
+    if (m_useDifferentGroups) {
+        if (newWindow->second.group != m_currentWindow->second.group)
+            setGroup(newWindow->second.group);
+    } else {
+        newWindow->second.group = m_currentWindow->second.group;
+    }
 
     printGroupName(newWindow->second.group, newWindow->second.layoutIndex);
     m_currentWindow = newWindow;

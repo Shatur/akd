@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file. This projec
 
 [Full Changelog](https://github.com/Shatur95/akd/compare/2.0.0...HEAD)
 
+**Added**
+
+- The ability to disable different layouts or groups for each window.
+
 **Changed**
 
 - Use more efficient group change detection.
