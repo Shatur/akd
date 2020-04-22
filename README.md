@@ -17,7 +17,7 @@
 - Low memory consumption (~350 KB).
 - Layout configuration.
 - Remember different keyboard layouts and groups for each window.
-- Print current layout to stdout.
+- Print layout to `stdout` on change.
 
 ## Configuration
 
