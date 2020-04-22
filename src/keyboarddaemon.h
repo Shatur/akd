@@ -50,12 +50,14 @@ private:
     void applyWindowLayout(const XPropertyEvent &event);
     void removeDestroyedWindow(const XDestroyWindowEvent &event);
     void processShortcuts(const XKeyEvent &event);
-    void saveCurrentGroup();
+    void saveCurrentGroup(const XkbStateNotifyEvent &event);
 
     // Helpers
     void setLayout(size_t layoutIndex);
     void setGroup(unsigned char group);
+
     void readKeyboardRules();
+    void readCurrentGroup();
 
     void printGroupName(unsigned char group, std::optional<size_t> layoutIndex = std::nullopt) const;
     KeyboardSymbols serverSymbols() const;

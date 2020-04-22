@@ -37,7 +37,7 @@ namespace po = boost::program_options;
 KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
 {
     XSelectInput(m_display.get(), m_root, PropertyChangeMask | SubstructureNotifyMask);
-    XkbSelectEvents(m_display.get(), XkbUseCoreKbd, XkbIndicatorStateNotifyMask, XkbIndicatorStateNotifyMask);
+    XkbSelectEventDetails(m_display.get(), XkbUseCoreKbd, XkbStateNotify, XkbAllStateComponentsMask, XkbGroupStateMask);
 
     m_printGroups = parameters.printGroups();
 
@@ -55,28 +55,28 @@ KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
     if (const std::optional<std::string> nextLayout = parameters.nextLayoutShortcut())
         m_shortcuts.emplace_back(nextLayout.value(), *this, &KeyboardDaemon::switchToNextLayout);
 
-    saveCurrentGroup();
+    readCurrentGroup();
 }
 
 void KeyboardDaemon::processEvents()
 {
     while (true) {
-        XEvent event;
-        XNextEvent(m_display.get(), &event);
+        XkbEvent event;
+        XNextEvent(m_display.get(), &event.core);
 
         switch (event.type) {
         case DestroyNotify:
-            removeDestroyedWindow(event.xdestroywindow);
+            removeDestroyedWindow(event.core.xdestroywindow);
             break;
         case PropertyNotify:
-            applyWindowLayout(event.xproperty);
+            applyWindowLayout(event.core.xproperty);
             break;
         case KeyPress:
-            processShortcuts(event.xkey);
+            processShortcuts(event.core.xkey);
             break;
         default:
             if (event.type == m_xkbEventType)
-                saveCurrentGroup();
+                saveCurrentGroup(event.state);
         }
     }
 }
@@ -129,18 +129,15 @@ void KeyboardDaemon::applyWindowLayout(const XPropertyEvent &event)
     m_currentWindow = newWindow;
 }
 
-void KeyboardDaemon::saveCurrentGroup()
+void KeyboardDaemon::saveCurrentGroup(const XkbStateNotifyEvent &event)
 {
     if (m_ignoreNextLayoutSave) {
         m_ignoreNextLayoutSave = false;
         return;
     }
 
-    XkbStateRec state;
-    XkbGetState(m_display.get(), XkbUseCoreKbd, &state);
-
-    printGroupName(state.group);
-    m_currentWindow->second.group = state.group;
+    printGroupName(event.group);
+    m_currentWindow->second.group = event.group;
 }
 
 void KeyboardDaemon::setLayout(size_t layoutIndex)
@@ -165,7 +162,7 @@ void KeyboardDaemon::setGroup(unsigned char group)
     if (!XkbLockGroup(m_display.get(), XkbUseCoreKbd, group))
         throw std::logic_error("Unable to switch group to " + std::to_string(group));
 
-    // This will produce xkb event, ignore it
+    // This will produce XkbStateNotifyEvent event, ignore it
     m_ignoreNextLayoutSave = true;
 }
 
@@ -198,6 +195,15 @@ void KeyboardDaemon::readKeyboardRules()
     // Free layout because it will be replaced with pointer to std::string
     if (m_currentVarDefs->layout)
         XFree(m_currentVarDefs->layout);
+}
+
+void KeyboardDaemon::readCurrentGroup()
+{
+    XkbStateRec state;
+    XkbGetState(m_display.get(), XkbUseCoreKbd, &state);
+
+    printGroupName(state.group);
+    m_currentWindow->second.group = state.group;
 }
 
 KeyboardSymbols KeyboardDaemon::serverSymbols() const

@@ -6,7 +6,9 @@ All notable changes to this project will be documented in this file. This projec
 
 [Full Changelog](https://github.com/Shatur95/akd/compare/2.0.0...HEAD)
 
-_No unreleased changes yet_
+**Changed**
+
+- Use more efficient group change detection.
 
 ## [2.0.0](https://github.com/Shatur95/akd/tree/2.0.0) (2020-04-22)
 
