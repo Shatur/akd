@@ -27,10 +27,11 @@
 
 **Commands**
 
-| Option                                             | Description            |
-| -------------------------------------------------- | ---------------------- |
-| -h [ --help ]                                      | Prints this message.   |
-| -s [ --settings ] path (="~/.config/akd/akd.conf") | Path to settings file. |
+| Option                                             | Description                       |
+| -------------------------------------------------- | --------------------------------- |
+| -h [ --help ]                                      | Print usage information and exit. |
+| -v [ --version ]                                   | Print version number and exit.    |
+| -s [ --settings ] path (="~/.config/akd/akd.conf") | Path to settings file.            |
 
 **Configuration**
 

@@ -1,0 +1,9 @@
+#ifndef VERSION_H
+#define VERSION_H
+
+#define akd_VERSION_MAJOR @akd_VERSION_MAJOR@
+#define akd_VERSION_MINOR @akd_VERSION_MINOR@
+#define akd_VERSION_PATCH @akd_VERSION_PATCH@
+#define akd_DESCRIPTION "@akd_DESCRIPTION@"
+
+#endif // VERSION_H

@@ -19,8 +19,10 @@
  */
 
 #include "parameters.h"
+#include "version.h"
 
 #include <boost/program_options.hpp>
+#include <boost/format.hpp>
 
 #include <filesystem>
 #include <iostream>
@@ -32,7 +34,8 @@ Parameters::Parameters(int argc, char *argv[])
 {
     po::options_description commands("Commands");
     commands.add_options()
-            ("help,h", "Prints this message.")
+            ("help,h", "Print usage information and exit.")
+            ("version,v", "Print version number and exit.")
             ("settings,s", po::value<fs::path>()->value_name("path")->default_value(fs::path(getenv("HOME")) / ".config/akd/akd.conf"), "Path to settings file.");
 
     po::options_description configuration("Configuration");
@@ -53,8 +56,13 @@ Parameters::Parameters(int argc, char *argv[])
         store(parse_config_file(settingsPath.c_str(), configuration), m_parameters);
 
     if (m_parameters.count("help")) {
-        std::cout << "Usage: "  << argv[0] << " [options]" << allOptions;
-        std::exit(1);
+        std::cout << boost::format("Usage: %s [options]") % argv[0] << allOptions;
+        std::exit(0);
+    }
+
+    if (m_parameters.count("version")) {
+        std::cout << boost::format("%s %d.%d.%d\n") % akd_DESCRIPTION % akd_VERSION_MAJOR % akd_VERSION_MINOR % akd_VERSION_PATCH;
+        std::exit(0);
     }
 
     notify(m_parameters);
