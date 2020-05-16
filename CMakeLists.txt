@@ -7,6 +7,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+find_package(X11 COMPONENTS xkbfile REQUIRED)
+find_package(Boost COMPONENTS program_options REQUIRED)
+
+configure_file(src/cmake.h.in cmake.h)
+
 add_executable(${PROJECT_NAME}
     src/main.cpp
     src/keyboarddaemon.cpp
@@ -16,10 +21,6 @@ add_executable(${PROJECT_NAME}
     src/parameters.cpp
 )
 
-configure_file(src/version.h.in version.h)
-
-find_package(X11 COMPONENTS xkbfile REQUIRED)
-find_package(Boost COMPONENTS program_options REQUIRED)
 target_link_libraries(${PROJECT_NAME} Boost::program_options X11::xkbfile)
 
 install(TARGETS ${PROJECT_NAME})

@@ -19,7 +19,7 @@
  */
 
 #include "parameters.h"
-#include "version.h"
+#include "cmake.h"
 
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
