@@ -64,11 +64,11 @@ private:
     [[nodiscard]] Window activeWindow() const;
 
     const std::unique_ptr<Display, DisplayDeleter> m_display{XkbOpenDisplay(nullptr, &m_xkbEventType, nullptr, nullptr, nullptr, nullptr)};
-    const Window m_root = XDefaultRootWindow(m_display.get());
-    const Atom m_activeWindowProperty = XInternAtom(m_display.get(), "_NET_ACTIVE_WINDOW", false);
+    Window m_root;
+    Atom m_activeWindowProperty;
     int m_xkbEventType;
 
-    std::unordered_map<Window, Keyboard> m_windows{{activeWindow(), {}}};
+    std::unordered_map<Window, Keyboard> m_windows;
     std::vector<Layout> m_layouts;
     std::vector<Shortcut> m_shortcuts;
 
@@ -76,7 +76,7 @@ private:
     std::unique_ptr<XkbRF_VarDefsRec, VarDefsDeleter> m_currentVarDefs;
     std::unique_ptr<char[], XlibDeleter> m_currentRulesPath;
 
-    decltype(m_windows)::iterator m_currentWindow = m_windows.begin();
+    decltype(m_windows)::iterator m_currentWindow;
     bool m_ignoreNextLayoutSave = false;
     bool m_useDifferentGroups;
     bool m_useDifferentLayouts;

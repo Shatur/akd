@@ -38,8 +38,16 @@ KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
     , m_useDifferentLayouts(parameters.useDifferentLayouts())
     , m_printGroups(parameters.printGroups())
 {
+    if (!m_display)
+        throw std::logic_error("Unable to connect to X server");
+
+    m_root = XDefaultRootWindow(m_display.get());
+    m_activeWindowProperty = XInternAtom(m_display.get(), "_NET_ACTIVE_WINDOW", false);
+    m_windows.emplace(activeWindow(), Keyboard());
+    m_currentWindow = m_windows.begin();
+
     const KeyboardSymbols symbols = serverSymbols();
-    if (std::optional<std::vector<std::string>> layouts = parameters.layouts()) {
+    if (std::optional<std::vector<std::string>> layouts = parameters.layouts(); layouts) {
         for (std::string &layout : layouts.value())
             m_layouts.emplace_back(std::move(layout), symbols.options);
         if (!parameters.skipRules())
@@ -49,7 +57,7 @@ KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
         m_layouts.emplace_back(boost::join(symbols.groups, ","));
     }
 
-    if (const std::optional<std::string> nextLayout = parameters.nextLayoutShortcut())
+    if (const std::optional<std::string> nextLayout = parameters.nextLayoutShortcut(); nextLayout)
         m_shortcuts.emplace_back(nextLayout.value(), *this, &KeyboardDaemon::switchToNextLayout);
 
     XkbSelectEventDetails(m_display.get(), XkbUseCoreKbd, XkbStateNotify, XkbAllStateComponentsMask, XkbGroupStateMask);
