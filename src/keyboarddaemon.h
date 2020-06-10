@@ -40,8 +40,8 @@ public:
 
     [[noreturn]] void processEvents();
 
-    Display &display() const;
-    Window root() const;
+    [[nodiscard]] Display &display() const;
+    [[nodiscard]] Window root() const;
 
     void switchToNextLayout();
 
@@ -60,7 +60,7 @@ private:
     void readCurrentGroup();
 
     void printGroupName(unsigned char group, std::optional<size_t> layoutIndex = std::nullopt) const;
-    KeyboardSymbols serverSymbols() const;
+    [[nodiscard]] KeyboardSymbols serverSymbols() const;
     [[nodiscard]] std::optional<Window> activeWindow() const;
 
     const std::unique_ptr<Display, DisplayDeleter> m_display{XkbOpenDisplay(nullptr, &m_xkbEventType, nullptr, nullptr, nullptr, nullptr)};

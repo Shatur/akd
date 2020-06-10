@@ -29,19 +29,19 @@ class Parameters
 public:
     Parameters(int argc, char *argv[]);
 
-    bool useDifferentGroups() const;
-    bool useDifferentLayouts() const;
-    bool printGroups() const;
-    bool skipRules() const;
+    [[nodiscard]] bool useDifferentGroups() const;
+    [[nodiscard]] bool useDifferentLayouts() const;
+    [[nodiscard]] bool printGroups() const;
+    [[nodiscard]] bool skipRules() const;
 
-    std::optional<std::vector<std::string>> layouts();
-    std::optional<std::string> nextLayoutShortcut();
+    [[nodiscard]] std::optional<std::vector<std::string>> layouts();
+    [[nodiscard]] std::optional<std::string> nextLayoutShortcut();
 
 private:
-    static std::filesystem::path defaultConfigPath();
+    [[nodiscard]] static std::filesystem::path defaultConfigPath();
 
     template<typename T, typename Key>
-    std::optional<T> findOptional(Key key);
+    [[nodiscard]] std::optional<T> findOptional(Key key);
 
     boost::program_options::variables_map m_parameters;
 };

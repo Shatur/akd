@@ -28,7 +28,7 @@ struct Layout
 {
     Layout(std::string layout, const std::vector<std::string> &options = {});
 
-    std::string_view groupName(unsigned char group) const;
+    [[nodiscard]] std::string_view groupName(unsigned char group) const;
 
     std::string layoutString;
     std::string symbols;
