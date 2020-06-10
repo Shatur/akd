@@ -26,9 +26,6 @@
 #include <filesystem>
 #include <iostream>
 
-namespace po = boost::program_options;
-namespace fs = std::filesystem;
-
 int main(int argc, char *argv[])
 {
     try {

@@ -22,6 +22,7 @@
 #define PARAMETERS_H
 
 #include <boost/program_options/variables_map.hpp>
+#include <filesystem>
 
 class Parameters
 {
@@ -37,6 +38,8 @@ public:
     std::optional<std::string> nextLayoutShortcut();
 
 private:
+    static std::filesystem::path defaultConfigPath();
+
     template<typename T, typename Key>
     std::optional<T> findOptional(Key key);
 

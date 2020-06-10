@@ -24,7 +24,6 @@
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
 
-#include <filesystem>
 #include <iostream>
 
 namespace po = boost::program_options;
@@ -36,7 +35,7 @@ Parameters::Parameters(int argc, char *argv[])
     commands.add_options()
             ("help,h", "Print usage information and exit.")
             ("version,v", "Print version number and exit.")
-            ("settings,s", po::value<fs::path>()->value_name("path")->default_value(fs::path(getenv("HOME")) / ".config/akd/akd.conf"), "Path to settings file.");
+            ("settings,s", po::value<fs::path>()->value_name("path")->default_value(defaultConfigPath()), "Path to settings file.");
 
     po::options_description configuration("Configuration");
     configuration.add_options()
@@ -96,6 +95,15 @@ std::optional<std::vector<std::string>> Parameters::layouts()
 std::optional<std::string> Parameters::nextLayoutShortcut()
 {
     return findOptional<std::string>("shortcuts.nextlayout");
+}
+
+fs::path Parameters::defaultConfigPath()
+{
+    const char *home = getenv("HOME");
+    if (home == nullptr)
+        return {};
+
+    return fs::path(home) / ".config/akd/akd.conf";
 }
 
 template<typename T, typename Key>
