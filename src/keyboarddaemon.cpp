@@ -43,7 +43,8 @@ KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
 
     m_root = XDefaultRootWindow(m_display.get());
     m_activeWindowProperty = XInternAtom(m_display.get(), "_NET_ACTIVE_WINDOW", false);
-    m_windows.emplace(activeWindow(), Keyboard());
+    if (std::optional<Window> window = activeWindow(); window)
+        m_windows.emplace(window.value(), Keyboard());
     m_currentWindow = m_windows.begin();
 
     const KeyboardSymbols symbols = serverSymbols();
@@ -128,7 +129,11 @@ void KeyboardDaemon::applyWindowLayout(const XPropertyEvent &event)
     if (event.state != PropertyNewValue || event.atom != m_activeWindowProperty)
         return;
 
-    const auto [newWindow, inserted] = m_windows.try_emplace(activeWindow());
+    std::optional<Window> window = activeWindow();
+    if (!window)
+        return;
+
+    const auto [newWindow, inserted] = m_windows.try_emplace(window.value());
     if (m_useDifferentLayouts) {
         if (newWindow->second.layoutIndex != m_currentWindow->second.layoutIndex)
             setLayout(newWindow->second.layoutIndex);
@@ -237,7 +242,7 @@ KeyboardSymbols KeyboardDaemon::serverSymbols() const
     return symbols;
 }
 
-Window KeyboardDaemon::activeWindow() const
+std::optional<Window> KeyboardDaemon::activeWindow() const
 {
     Atom type;
     int format;
@@ -245,10 +250,18 @@ Window KeyboardDaemon::activeWindow() const
     unsigned long remainSize;
     unsigned char *bytes;
 
-    XGetWindowProperty(m_display.get(), m_root, m_activeWindowProperty, 0, 1, false, AnyPropertyType,
-                       &type, &format, &size, &remainSize, &bytes);
+    const int result = XGetWindowProperty(m_display.get(), m_root, m_activeWindowProperty, 0, 1, false, AnyPropertyType,
+                                          &type, &format, &size, &remainSize, &bytes);
 
-    std::unique_ptr<unsigned char [], XlibDeleter> cleaner(bytes);
+    if (result != Success)
+        throw std::logic_error("Unable to get active window property");
 
-    return *reinterpret_cast<Window *>(bytes);
+    // There is no active window
+    if (type == None)
+        return std::nullopt;
+
+    Window window = *reinterpret_cast<Window *>(bytes);
+    XFree(bytes);
+
+    return window;
 }

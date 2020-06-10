@@ -61,7 +61,7 @@ private:
 
     void printGroupName(unsigned char group, std::optional<size_t> layoutIndex = std::nullopt) const;
     KeyboardSymbols serverSymbols() const;
-    [[nodiscard]] Window activeWindow() const;
+    [[nodiscard]] std::optional<Window> activeWindow() const;
 
     const std::unique_ptr<Display, DisplayDeleter> m_display{XkbOpenDisplay(nullptr, &m_xkbEventType, nullptr, nullptr, nullptr, nullptr)};
     Window m_root;
