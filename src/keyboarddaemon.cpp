@@ -43,8 +43,7 @@ KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
 
     m_root = XDefaultRootWindow(m_display.get());
     m_activeWindowProperty = XInternAtom(m_display.get(), "_NET_ACTIVE_WINDOW", false);
-    if (std::optional<Window> window = activeWindow(); window)
-        m_windows.emplace(window.value(), Keyboard());
+    m_windows.emplace(activeWindow(), Keyboard());
     m_currentWindow = m_windows.begin();
 
     const KeyboardSymbols symbols = serverSymbols();
@@ -129,11 +128,7 @@ void KeyboardDaemon::applyWindowLayout(const XPropertyEvent &event)
     if (event.state != PropertyNewValue || event.atom != m_activeWindowProperty)
         return;
 
-    std::optional<Window> window = activeWindow();
-    if (!window)
-        return;
-
-    const auto [newWindow, inserted] = m_windows.try_emplace(window.value());
+    const auto [newWindow, inserted] = m_windows.try_emplace(activeWindow());
     if (m_useDifferentLayouts) {
         if (newWindow->second.layoutIndex != m_currentWindow->second.layoutIndex)
             setLayout(newWindow->second.layoutIndex);
@@ -195,10 +190,12 @@ void KeyboardDaemon::printGroupName(unsigned char group, std::optional<size_t> l
         return;
 
     if (!layoutIndex) {
+        // Layout index do not changed
         std::cout << m_layouts[m_currentWindow->second.layoutIndex].groupName(group) << std::endl;
         return;
     }
 
+    // Layout changed, compare groups lexically to check if group changed
     const std::string_view newGroupName = m_layouts[layoutIndex.value()].groupName(group);
     const std::string_view currentGroupName = m_layouts[m_currentWindow->second.layoutIndex].groupName(m_currentWindow->second.group);
     if (newGroupName != currentGroupName)
@@ -242,7 +239,7 @@ KeyboardSymbols KeyboardDaemon::serverSymbols() const
     return symbols;
 }
 
-std::optional<Window> KeyboardDaemon::activeWindow() const
+Window KeyboardDaemon::activeWindow() const
 {
     Atom type;
     int format;
@@ -258,7 +255,7 @@ std::optional<Window> KeyboardDaemon::activeWindow() const
 
     // There is no active window
     if (type == None)
-        return std::nullopt;
+        return m_root;
 
     Window window = *reinterpret_cast<Window *>(bytes);
     XFree(bytes);
