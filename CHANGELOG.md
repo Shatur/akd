@@ -4,9 +4,17 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased](https://github.com/Shatur95/akd/tree/HEAD)
 
-[Full Changelog](https://github.com/Shatur95/akd/compare/2.1.0...HEAD)
+[Full Changelog](https://github.com/Shatur95/akd/compare/2.1.1...HEAD)
 
 _No unreleased changes yet_
+
+## [2.1.1](https://github.com/Shatur95/akd/tree/2.1.1) (2020-06-11)
+
+[Full Changelog](https://github.com/Shatur95/akd/compare/2.1.1...2.1.0)
+
+**Changed**
+
+- Add more checks to prevent crashes in some cases.
 
 ## [2.1.0](https://github.com/Shatur95/akd/tree/2.1.0) (2020-04-25)
 
