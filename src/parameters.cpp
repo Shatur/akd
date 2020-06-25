@@ -56,15 +56,21 @@ Parameters::Parameters(int argc, char *argv[])
 
     if (m_parameters.count("help")) {
         std::cout << boost::format("Usage: %s [options]") % argv[0] << allOptions;
-        std::exit(0);
+        return;
     }
 
     if (m_parameters.count("version")) {
         std::cout << boost::format("%s %d.%d.%d\n") % akd_DESCRIPTION % akd_VERSION_MAJOR % akd_VERSION_MINOR % akd_VERSION_PATCH;
-        std::exit(0);
+        return;
     }
 
     notify(m_parameters);
+    m_printInfoOnly = false;
+}
+
+bool Parameters::isPrintInfoOnly()
+{
+    return m_printInfoOnly;
 }
 
 bool Parameters::useDifferentGroups() const

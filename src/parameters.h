@@ -29,6 +29,8 @@ class Parameters
 public:
     Parameters(int argc, char *argv[]);
 
+    [[nodiscard]] bool isPrintInfoOnly();
+
     [[nodiscard]] bool useDifferentGroups() const;
     [[nodiscard]] bool useDifferentLayouts() const;
     [[nodiscard]] bool printGroups() const;
@@ -44,6 +46,7 @@ private:
     [[nodiscard]] std::optional<T> findOptional(Key key);
 
     boost::program_options::variables_map m_parameters;
+    bool m_printInfoOnly = true;
 };
 
 #endif // PARAMETERS_H
