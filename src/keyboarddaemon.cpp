@@ -38,6 +38,12 @@ KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
     if (!m_display)
         throw std::logic_error("Unable to connect to X server");
 
+    if (parameters.printCurrentGroup()) {
+        std::cout << serverSymbols().groups[currentGroup()] << '\n';
+        m_needProcessEvents = false;
+        return;
+    }
+
     m_root = XDefaultRootWindow(m_display.get());
     m_activeWindowProperty = XInternAtom(m_display.get(), "_NET_ACTIVE_WINDOW", false);
     m_windows.emplace(activeWindow(), Keyboard());
@@ -50,6 +56,12 @@ KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
         XSelectInput(m_display.get(), m_root, PropertyChangeMask | SubstructureNotifyMask); // Listen for current window change events
 
     saveCurrentGroup();
+    m_needProcessEvents = true;
+}
+
+bool KeyboardDaemon::needProcessEvents() const
+{
+    return m_needProcessEvents;
 }
 
 void KeyboardDaemon::processEvents()

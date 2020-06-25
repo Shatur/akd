@@ -35,9 +35,10 @@ Parameters::Parameters(int argc, char *argv[])
     commands.add_options()
             ("help,h", "Print usage information and exit.")
             ("version,v", "Print version number and exit.")
+            ("print-current-group,c", po::bool_switch(), "Print current group and exit.")
             ("settings,s", po::value<fs::path>()->value_name("path")->default_value(defaultConfigPath()), "Path to settings file.");
 
-    po::options_description configuration("Configuration");
+    po::options_description configuration("Daemon configuration");
     configuration.add_options()
             ("general.different-groups,g", po::bool_switch(), "Use different groups for each window.")
             ("general.different-layout,a", po::bool_switch(), "Use different layouts for each window.")
@@ -56,16 +57,23 @@ Parameters::Parameters(int argc, char *argv[])
 
     if (m_parameters.count("help")) {
         std::cout << boost::format("Usage: %s [options]") % argv[0] << allOptions;
+        m_printInfoOnly = true;
         return;
     }
 
     if (m_parameters.count("version")) {
         std::cout << boost::format("%s %d.%d.%d\n") % akd_DESCRIPTION % akd_VERSION_MAJOR % akd_VERSION_MINOR % akd_VERSION_PATCH;
+        m_printInfoOnly = true;
         return;
     }
 
     notify(m_parameters);
     m_printInfoOnly = false;
+}
+
+bool Parameters::printCurrentGroup() const
+{
+    return m_parameters["print-current-group"].as<bool>();
 }
 
 bool Parameters::isPrintInfoOnly()

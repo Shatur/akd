@@ -34,7 +34,8 @@ int main(int argc, char *argv[])
             return 0;
 
         KeyboardDaemon daemon(parameters);
-        daemon.processEvents();
+        if (daemon.needProcessEvents())
+            daemon.processEvents();
     } catch (std::exception &error) {
         std::cerr << error.what() << '\n';
         return 1;

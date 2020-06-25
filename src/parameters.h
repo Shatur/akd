@@ -31,6 +31,8 @@ public:
 
     [[nodiscard]] bool isPrintInfoOnly();
 
+    [[nodiscard]] bool printCurrentGroup() const;
+
     [[nodiscard]] bool useDifferentGroups() const;
     [[nodiscard]] bool useDifferentLayouts() const;
     [[nodiscard]] bool printGroups() const;
@@ -46,7 +48,7 @@ private:
     [[nodiscard]] std::optional<T> findOptional(Key key);
 
     boost::program_options::variables_map m_parameters;
-    bool m_printInfoOnly = true;
+    bool m_printInfoOnly;
 };
 
 #endif // PARAMETERS_H

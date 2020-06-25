@@ -38,6 +38,7 @@ class KeyboardDaemon
 public:
     explicit KeyboardDaemon(Parameters &parameters);
 
+    [[nodiscard]] bool needProcessEvents() const;
     [[noreturn]] void processEvents();
 
     [[nodiscard]] Display &display() const;
@@ -80,6 +81,7 @@ private:
 
     decltype(m_windows)::iterator m_currentWindow;
     bool m_ignoreNextLayoutSave = false;
+    bool m_needProcessEvents;
     bool m_useDifferentGroups;
     bool m_useDifferentLayouts;
     bool m_printGroups;
