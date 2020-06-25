@@ -56,6 +56,7 @@ private:
     void setLayout(size_t layoutIndex);
     void setGroup(unsigned char group);
 
+    void loadParameters(Parameters &parameters);
     void readKeyboardRules();
     void readCurrentGroup();
 

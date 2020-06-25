@@ -34,9 +34,6 @@
 namespace x3 = boost::spirit::x3;
 
 KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
-    : m_useDifferentGroups(parameters.useDifferentGroups())
-    , m_useDifferentLayouts(parameters.useDifferentLayouts())
-    , m_printGroups(parameters.printGroups())
 {
     if (!m_display)
         throw std::logic_error("Unable to connect to X server");
@@ -46,19 +43,7 @@ KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
     m_windows.emplace(activeWindow(), Keyboard());
     m_currentWindow = m_windows.begin();
 
-    const KeyboardSymbols symbols = serverSymbols();
-    if (std::optional<std::vector<std::string>> layouts = parameters.layouts(); layouts) {
-        for (std::string &layout : layouts.value())
-            m_layouts.emplace_back(std::move(layout), symbols.options);
-        if (!parameters.skipRules())
-            readKeyboardRules();
-        setLayout(0);
-    } else {
-        m_layouts.emplace_back(boost::join(symbols.groups, ","));
-    }
-
-    if (const std::optional<std::string> nextLayout = parameters.nextLayoutShortcut(); nextLayout)
-        m_shortcuts.emplace_back(nextLayout.value(), *this, &KeyboardDaemon::switchToNextLayout);
+    loadParameters(parameters);
 
     XkbSelectEventDetails(m_display.get(), XkbUseCoreKbd, XkbStateNotify, XkbAllStateComponentsMask, XkbGroupStateMask);
     if (m_useDifferentGroups || m_useDifferentLayouts)
@@ -200,6 +185,27 @@ void KeyboardDaemon::printGroupName(unsigned char group, std::optional<size_t> l
     const std::string_view currentGroupName = m_layouts[m_currentWindow->second.layoutIndex].groupName(m_currentWindow->second.group);
     if (newGroupName != currentGroupName)
         std::cout << newGroupName << std::endl;
+}
+
+void KeyboardDaemon::loadParameters(Parameters &parameters)
+{
+    m_useDifferentGroups = parameters.useDifferentGroups();
+    m_useDifferentLayouts = parameters.useDifferentLayouts();
+    m_printGroups = parameters.printGroups();
+
+    const KeyboardSymbols symbols = serverSymbols();
+    if (std::optional<std::vector<std::string>> layouts = parameters.layouts(); layouts) {
+        for (std::string &layout : layouts.value())
+            m_layouts.emplace_back(std::move(layout), symbols.options);
+        if (!parameters.skipRules())
+            readKeyboardRules();
+        setLayout(0);
+    } else {
+        m_layouts.emplace_back(boost::join(symbols.groups, ","));
+    }
+
+    if (const std::optional<std::string> nextLayout = parameters.nextLayoutShortcut(); nextLayout)
+        m_shortcuts.emplace_back(nextLayout.value(), *this, &KeyboardDaemon::switchToNextLayout);
 }
 
 void KeyboardDaemon::readKeyboardRules()
