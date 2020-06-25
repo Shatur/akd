@@ -57,12 +57,13 @@ private:
     void setGroup(unsigned char group);
 
     void loadParameters(Parameters &parameters);
-    void readKeyboardRules();
-    void readCurrentGroup();
+    void saveKeyboardRules();
+    void saveCurrentGroup();
 
     void printGroupName(unsigned char group, std::optional<size_t> layoutIndex = std::nullopt) const;
     [[nodiscard]] KeyboardSymbols serverSymbols() const;
     [[nodiscard]] Window activeWindow() const;
+    [[nodiscard]] unsigned char currentGroup() const;
 
     const std::unique_ptr<Display, DisplayDeleter> m_display{XkbOpenDisplay(nullptr, &m_xkbEventType, nullptr, nullptr, nullptr, nullptr)};
     Window m_root;

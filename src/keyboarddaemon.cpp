@@ -49,7 +49,7 @@ KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
     if (m_useDifferentGroups || m_useDifferentLayouts)
         XSelectInput(m_display.get(), m_root, PropertyChangeMask | SubstructureNotifyMask); // Listen for current window change events
 
-    readCurrentGroup();
+    saveCurrentGroup();
 }
 
 void KeyboardDaemon::processEvents()
@@ -198,7 +198,7 @@ void KeyboardDaemon::loadParameters(Parameters &parameters)
         for (std::string &layout : layouts.value())
             m_layouts.emplace_back(std::move(layout), symbols.options);
         if (!parameters.skipRules())
-            readKeyboardRules();
+            saveKeyboardRules();
         setLayout(0);
     } else {
         m_layouts.emplace_back(boost::join(symbols.groups, ","));
@@ -208,7 +208,7 @@ void KeyboardDaemon::loadParameters(Parameters &parameters)
         m_shortcuts.emplace_back(nextLayout.value(), *this, &KeyboardDaemon::switchToNextLayout);
 }
 
-void KeyboardDaemon::readKeyboardRules()
+void KeyboardDaemon::saveKeyboardRules()
 {
     char *path;
     m_currentVarDefs.reset(new XkbRF_VarDefsRec);
@@ -223,13 +223,12 @@ void KeyboardDaemon::readKeyboardRules()
         XFree(m_currentVarDefs->layout);
 }
 
-void KeyboardDaemon::readCurrentGroup()
+void KeyboardDaemon::saveCurrentGroup()
 {
-    XkbStateRec state;
-    XkbGetState(m_display.get(), XkbUseCoreKbd, &state);
+    const unsigned char group = currentGroup();
 
-    printGroupName(state.group);
-    m_currentWindow->second.group = state.group;
+    printGroupName(group);
+    m_currentWindow->second.group = group;
 }
 
 KeyboardSymbols KeyboardDaemon::serverSymbols() const
@@ -267,4 +266,11 @@ Window KeyboardDaemon::activeWindow() const
     XFree(bytes);
 
     return window;
+}
+
+unsigned char KeyboardDaemon::currentGroup() const
+{
+    XkbStateRec state;
+    XkbGetState(m_display.get(), XkbUseCoreKbd, &state);
+    return state.group;
 }
