@@ -27,12 +27,13 @@
 
 **Commands**
 
-| Option                                             | Description                       |
-| -------------------------------------------------- | --------------------------------- |
-| -h [ --help ]                                      | Print usage information and exit. |
-| -v [ --version ]                                   | Print version number and exit.    |
-| -c [ --print-current-group ]                       | Print current group and exit.     |
-| -s [ --settings ] path (="~/.config/akd/akd.conf") | Path to settings file.            |
+| Option                                             | Description                        |
+| -------------------------------------------------- | ---------------------------------- |
+| -h [ --help ]                                      | Print usage information and exit.  |
+| -v [ --version ]                                   | Print version number and exit.     |
+| -c [ --print-current-group ]                       | Print current group and exit.      |
+| -x [ --next-group ]                                | Switch to the next group and exit. |
+| -s [ --settings ] path (="~/.config/akd/akd.conf") | Path to settings file.             |
 
 **Configuration**
 

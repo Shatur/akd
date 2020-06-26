@@ -45,6 +45,12 @@ KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
         return;
     }
 
+    if (parameters.nextGroup()) {
+        setGroup(currentGroup() + 1);
+        m_needProcessEvents = false;
+        return;
+    }
+
     m_root = XDefaultRootWindow(m_display.get());
     m_activeWindowProperty = XInternAtom(m_display.get(), "_NET_ACTIVE_WINDOW", false);
     m_windows.emplace(activeWindow(), Keyboard());

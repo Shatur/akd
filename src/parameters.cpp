@@ -36,6 +36,7 @@ Parameters::Parameters(int argc, char *argv[])
             ("help,h", "Print usage information and exit.")
             ("version,v", "Print version number and exit.")
             ("print-current-group,c", po::bool_switch(), "Print current group and exit.")
+            ("next-group,x", po::bool_switch(), "Switch to the next group and exit.")
             ("settings,s", po::value<fs::path>()->value_name("path")->default_value(defaultConfigPath()), "Path to settings file.");
 
     po::options_description configuration("Daemon configuration");
@@ -74,6 +75,11 @@ Parameters::Parameters(int argc, char *argv[])
 bool Parameters::printCurrentGroup() const
 {
     return m_parameters["print-current-group"].as<bool>();
+}
+
+bool Parameters::nextGroup() const
+{
+    return m_parameters["next-group"].as<bool>();
 }
 
 bool Parameters::isPrintInfoOnly()

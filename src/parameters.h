@@ -32,6 +32,7 @@ public:
     [[nodiscard]] bool isPrintInfoOnly();
 
     [[nodiscard]] bool printCurrentGroup() const;
+    [[nodiscard]] bool nextGroup() const;
 
     [[nodiscard]] bool useDifferentGroups() const;
     [[nodiscard]] bool useDifferentLayouts() const;
