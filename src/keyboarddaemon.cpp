@@ -26,6 +26,7 @@
 #include <boost/algorithm/string/join.hpp>
 #include <boost/program_options.hpp>
 #include <boost/spirit/home/x3.hpp>
+#include <boost/tokenizer.hpp>
 
 #include <iostream>
 
@@ -39,7 +40,7 @@ KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
         throw std::logic_error("Unable to connect to X server");
 
     if (parameters.printCurrentGroup()) {
-        std::cout << serverSymbols().groups[currentGroup()] << '\n';
+        printGroupNameFromKeyboardRules(currentGroup());
         m_needProcessEvents = false;
         return;
     }
@@ -199,6 +200,19 @@ void KeyboardDaemon::printGroupName(unsigned char group, std::optional<size_t> l
         std::cout << newGroupName << std::endl;
 }
 
+void KeyboardDaemon::printGroupNameFromKeyboardRules(unsigned char group)
+{
+    std::unique_ptr<XkbRF_VarDefsRec, VarDefsDeleter> currentVarDefs(new XkbRF_VarDefsRec);
+    if (!XkbRF_GetNamesProp(m_display.get(), nullptr, currentVarDefs.get()))
+        throw std::logic_error("Unable to get keyboard rules");
+
+    boost::tokenizer layoutTokenizer(std::string_view(currentVarDefs->layout), boost::char_separator(","));
+    auto currentGroupName = layoutTokenizer.begin();
+    std::advance(currentGroupName, group);
+
+    std::cout << currentGroupName.current_token() << '\n';
+}
+
 void KeyboardDaemon::loadParameters(Parameters &parameters)
 {
     m_useDifferentGroups = parameters.useDifferentGroups();
@@ -230,7 +244,7 @@ void KeyboardDaemon::saveKeyboardRules()
 
     m_currentRulesPath.reset(path);
 
-    // Free layout because it will be replaced with pointer to std::string
+    // Free layout to replace it with pointer to std::string later
     if (m_currentVarDefs->layout)
         XFree(m_currentVarDefs->layout);
 }

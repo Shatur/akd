@@ -62,6 +62,7 @@ private:
     void saveCurrentGroup();
 
     void printGroupName(unsigned char group, std::optional<size_t> layoutIndex = std::nullopt) const;
+    void printGroupNameFromKeyboardRules(unsigned char group);
     [[nodiscard]] KeyboardSymbols serverSymbols() const;
     [[nodiscard]] Window activeWindow() const;
     [[nodiscard]] unsigned char currentGroup() const;
@@ -76,7 +77,7 @@ private:
     std::vector<Shortcut> m_shortcuts;
 
     XkbComponentNamesRec m_currentComponents{};
-    std::unique_ptr<XkbRF_VarDefsRec, VarDefsDeleter> m_currentVarDefs;
+    std::unique_ptr<XkbRF_VarDefsRec, VarDefsWithoutLayoutDeleter> m_currentVarDefs;
     std::unique_ptr<char[], XlibDeleter> m_currentRulesPath;
 
     decltype(m_windows)::iterator m_currentWindow;

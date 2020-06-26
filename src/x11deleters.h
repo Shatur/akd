@@ -27,13 +27,15 @@
 
 class _XkbRF_VarDefs;
 using XkbRF_VarDefsRec = _XkbRF_VarDefs;
-void freeVarDefsComponents(XkbRF_VarDefsRec *varDefs);
+void freeVarDefsWithoutLayout(XkbRF_VarDefsRec *varDefs);
+void freeVarDefs(XkbRF_VarDefsRec *varDefs);
 
 template<auto Func>
 using Deleter = std::integral_constant<std::decay_t<decltype(Func)>, Func>;
 
 using DisplayDeleter = Deleter<XCloseDisplay>;
 using XlibDeleter = Deleter<XFree>;
-using VarDefsDeleter = Deleter<freeVarDefsComponents>;
+using VarDefsWithoutLayoutDeleter = Deleter<freeVarDefsWithoutLayout>;
+using VarDefsDeleter = Deleter<freeVarDefs>;
 
 #endif // X11DELETERS_H

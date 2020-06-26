@@ -25,9 +25,9 @@
 #include <X11/XKBlib.h>
 #include <X11/extensions/XKBrules.h>
 
-void freeVarDefsComponents(XkbRF_VarDefsRec *varDefs)
+void freeVarDefsWithoutLayout(XkbRF_VarDefsRec *varDefs)
 {
-    // layout member is NOT deleted because it replaced with string pointer
+    // Layout member is NOT deleted
     if (varDefs->model)
         XFree(varDefs->model);
     if (varDefs->variant)
@@ -38,4 +38,11 @@ void freeVarDefsComponents(XkbRF_VarDefsRec *varDefs)
         XFree(varDefs->extra_names);
     if (varDefs->extra_values)
         XFree(varDefs->extra_values);
+}
+
+void freeVarDefs(XkbRF_VarDefsRec *varDefs)
+{
+    freeVarDefsWithoutLayout(varDefs);
+    if (varDefs->layout)
+        XFree(varDefs->layout);
 }
