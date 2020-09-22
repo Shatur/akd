@@ -26,9 +26,10 @@
 #include "shortcut.h"
 #include "x11deleters.h"
 
-#include <X11/XKBlib.h>
 #include <memory>
 #include <unordered_map>
+
+#include <X11/XKBlib.h>
 
 class KeyboardSymbols;
 class Parameters;

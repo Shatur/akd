@@ -276,7 +276,7 @@ KeyboardSymbols KeyboardDaemon::serverSymbols() const
         throw std::logic_error("Unable to get keyboard symbols");
 
     KeyboardSymbols symbols;
-    const std::unique_ptr<char [], XlibDeleter> currentSymbols(XGetAtomName(m_display.get(), currentDesc->names->symbols));
+    const std::unique_ptr<char[], XlibDeleter> currentSymbols(XGetAtomName(m_display.get(), currentDesc->names->symbols));
     x3::parse(currentSymbols.get(), currentSymbols.get() + strlen(currentSymbols.get()), KeyboardSymbolsParser::symbolsRule, symbols);
 
     return symbols;

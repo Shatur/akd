@@ -30,9 +30,7 @@ struct KeyboardSymbols
     std::vector<std::string> options;
 };
 
-BOOST_FUSION_ADAPT_STRUCT(KeyboardSymbols,
-    groups, options
-)
+BOOST_FUSION_ADAPT_STRUCT(KeyboardSymbols, groups, options)
 
 namespace KeyboardSymbolsParser
 {

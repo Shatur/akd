@@ -19,10 +19,11 @@
  */
 
 #include "parameters.h"
+
 #include "cmake.h"
 
-#include <boost/program_options.hpp>
 #include <boost/format.hpp>
+#include <boost/program_options.hpp>
 
 #include <algorithm>
 #include <iostream>
