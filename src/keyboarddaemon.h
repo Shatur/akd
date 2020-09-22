@@ -36,7 +36,7 @@ class Parameters;
 class KeyboardDaemon
 {
 public:
-    explicit KeyboardDaemon(Parameters &parameters);
+    explicit KeyboardDaemon(const Parameters &parameters);
 
     [[nodiscard]] bool needProcessEvents() const;
     [[noreturn]] void processEvents();
@@ -57,7 +57,7 @@ private:
     void setLayout(size_t layoutIndex);
     void setGroup(unsigned char group);
 
-    void loadParameters(Parameters &parameters);
+    void loadParameters(const Parameters &parameters);
     void saveKeyboardRules();
     void saveCurrentGroup();
 

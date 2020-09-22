@@ -86,12 +86,12 @@ bool Parameters::nextGroup() const
     return m_parameters["next-group"].as<bool>();
 }
 
-std::optional<char> Parameters::setGroup()
+std::optional<char> Parameters::setGroup() const
 {
     return findOptional<char>("set-group");
 }
 
-bool Parameters::isPrintInfoOnly()
+bool Parameters::isPrintInfoOnly() const
 {
     return m_printInfoOnly;
 }
@@ -116,12 +116,12 @@ bool Parameters::skipRules() const
     return m_parameters["general.skip-rules"].as<bool>();
 }
 
-std::optional<std::vector<std::string>> Parameters::layouts()
+std::optional<std::vector<std::string>> Parameters::layouts() const
 {
     return findOptional<std::vector<std::string>>("general.layouts");
 }
 
-std::optional<std::string> Parameters::nextLayoutShortcut()
+std::optional<std::string> Parameters::nextLayoutShortcut() const
 {
     return findOptional<std::string>("shortcuts.nextlayout");
 }
@@ -136,10 +136,10 @@ fs::path Parameters::defaultConfigPath()
 }
 
 template<typename T, typename Key>
-std::optional<T> Parameters::findOptional(Key key)
+std::optional<T> Parameters::findOptional(Key key) const
 {
     auto it = m_parameters.find(key);
     if (it != m_parameters.end())
-        return boost::any_cast<T &&>(it->second.value());
+        return boost::any_cast<T>(it->second.value());
     return std::nullopt;
 }

@@ -29,7 +29,7 @@
 int main(int argc, char *argv[])
 {
     try {
-        Parameters parameters(argc, argv);
+        const Parameters parameters(argc, argv);
         if (parameters.isPrintInfoOnly())
             return 0;
 

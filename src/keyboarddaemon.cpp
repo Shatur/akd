@@ -34,7 +34,7 @@
 
 namespace x3 = boost::spirit::x3;
 
-KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
+KeyboardDaemon::KeyboardDaemon(const Parameters &parameters)
 {
     if (!m_display)
         throw std::logic_error("Unable to connect to X server");
@@ -225,7 +225,7 @@ void KeyboardDaemon::printGroupNameFromKeyboardRules(unsigned char group)
     std::cout << currentGroupName.current_token() << '\n';
 }
 
-void KeyboardDaemon::loadParameters(Parameters &parameters)
+void KeyboardDaemon::loadParameters(const Parameters &parameters)
 {
     m_useDifferentGroups = parameters.useDifferentGroups();
     m_useDifferentLayouts = parameters.useDifferentLayouts();

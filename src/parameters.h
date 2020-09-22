@@ -29,25 +29,25 @@ class Parameters
 public:
     Parameters(int argc, char *argv[]);
 
-    [[nodiscard]] bool isPrintInfoOnly();
+    [[nodiscard]] bool isPrintInfoOnly() const;
 
     [[nodiscard]] bool printCurrentGroup() const;
     [[nodiscard]] bool nextGroup() const;
-    [[nodiscard]] std::optional<char> setGroup();
+    [[nodiscard]] std::optional<char> setGroup() const;
 
     [[nodiscard]] bool useDifferentGroups() const;
     [[nodiscard]] bool useDifferentLayouts() const;
     [[nodiscard]] bool printGroups() const;
     [[nodiscard]] bool skipRules() const;
 
-    [[nodiscard]] std::optional<std::vector<std::string>> layouts();
-    [[nodiscard]] std::optional<std::string> nextLayoutShortcut();
+    [[nodiscard]] std::optional<std::vector<std::string>> layouts() const;
+    [[nodiscard]] std::optional<std::string> nextLayoutShortcut() const;
 
 private:
     [[nodiscard]] static std::filesystem::path defaultConfigPath();
 
     template<typename T, typename Key>
-    [[nodiscard]] std::optional<T> findOptional(Key key);
+    [[nodiscard]] std::optional<T> findOptional(Key key) const;
 
     boost::program_options::variables_map m_parameters;
     bool m_printInfoOnly;
