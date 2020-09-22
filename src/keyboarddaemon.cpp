@@ -45,6 +45,12 @@ KeyboardDaemon::KeyboardDaemon(Parameters &parameters)
         return;
     }
 
+    if (std::optional<char> group = parameters.setGroup(); group) {
+        setGroup(group.value());
+        m_needProcessEvents = false;
+        return;
+    }
+
     if (parameters.nextGroup()) {
         setGroup(currentGroup() + 1);
         m_needProcessEvents = false;

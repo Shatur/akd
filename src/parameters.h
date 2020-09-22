@@ -33,6 +33,7 @@ public:
 
     [[nodiscard]] bool printCurrentGroup() const;
     [[nodiscard]] bool nextGroup() const;
+    [[nodiscard]] std::optional<char> setGroup();
 
     [[nodiscard]] bool useDifferentGroups() const;
     [[nodiscard]] bool useDifferentLayouts() const;

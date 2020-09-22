@@ -18,7 +18,7 @@
 - Layout configuration.
 - Remember different keyboard layouts and groups for each window.
 - Print group to `stdout` on change (or just once and exit).
-- Switch to the next current group by command.
+- Switch groups by command.
 
 ## Configuration
 
@@ -28,13 +28,14 @@
 
 **Commands**
 
-| Option                                             | Description                        |
-| -------------------------------------------------- | ---------------------------------- |
-| -h [ --help ]                                      | Print usage information and exit.  |
-| -v [ --version ]                                   | Print version number and exit.     |
-| -c [ --print-current-group ]                       | Print current group and exit.      |
-| -x [ --next-group ]                                | Switch to the next group and exit. |
-| -s [ --settings ] path (="~/.config/akd/akd.conf") | Path to settings file.             |
+| Option                                             | Description                          |
+| -------------------------------------------------- | ------------------------------------ |
+| -h [ --help ]                                      | Print usage information and exit.    |
+| -v [ --version ]                                   | Print version number and exit.       |
+| -c [ --print-current-group ]                       | Print current group and exit.        |
+| -x [ --next-group ]                                | Switch to the next group and exit.   |
+| -i [ --set-group ] group index                     | Switch group to the specified index. |
+| -s [ --settings ] path (="~/.config/akd/akd.conf") | Path to settings file.               |
 
 **Configuration**
 

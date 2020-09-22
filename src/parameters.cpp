@@ -37,6 +37,7 @@ Parameters::Parameters(int argc, char *argv[])
             ("version,v", "Print version number and exit.")
             ("print-current-group,c", po::bool_switch(), "Print current group and exit.")
             ("next-group,x", po::bool_switch(), "Switch to the next group and exit.")
+            ("set-group,i", po::value<char>()->value_name("group index"), "Switch group to the specified index.")
             ("settings,s", po::value<fs::path>()->value_name("path")->default_value(defaultConfigPath()), "Path to settings file.");
 
     po::options_description configuration("Daemon configuration");
@@ -67,6 +68,9 @@ Parameters::Parameters(int argc, char *argv[])
         m_printInfoOnly = true;
         return;
     }
+    
+    if (!m_parameters["next-group"].defaulted() && m_parameters.count("set-group"))
+        throw std::logic_error("--next-group and --set-group cannot be specified at the same time");
 
     notify(m_parameters);
     m_printInfoOnly = false;
@@ -80,6 +84,11 @@ bool Parameters::printCurrentGroup() const
 bool Parameters::nextGroup() const
 {
     return m_parameters["next-group"].as<bool>();
+}
+
+std::optional<char> Parameters::setGroup()
+{
+    return findOptional<char>("set-group");
 }
 
 bool Parameters::isPrintInfoOnly()
