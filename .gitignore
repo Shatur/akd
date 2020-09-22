@@ -2,6 +2,9 @@
 CMakeLists.txt.user*
 *.autosave
 
+# VSCode files
+.vscode
+
 # Vim files
 .tasks
 .clangd
