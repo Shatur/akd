@@ -22,6 +22,7 @@
 #define PARAMETERS_H
 
 #include <boost/program_options/variables_map.hpp>
+#include <boost/program_options/options_description.hpp>
 #include <filesystem>
 
 class Parameters
@@ -31,23 +32,25 @@ public:
 
     [[nodiscard]] bool isPrintInfoOnly() const;
 
-    [[nodiscard]] bool printCurrentGroup() const;
-    [[nodiscard]] bool nextGroup() const;
-    [[nodiscard]] std::optional<char> setGroup() const;
+    [[nodiscard]] bool isPrintCurrentGroup() const;
+    [[nodiscard]] bool isSwitchToNextGroup() const;
+    [[nodiscard]] std::optional<char> groupToSet() const;
 
-    [[nodiscard]] bool useDifferentGroups() const;
+    [[nodiscard]] bool isUseDifferentGroups() const;
     [[nodiscard]] bool useDifferentLayouts() const;
-    [[nodiscard]] bool printGroups() const;
-    [[nodiscard]] bool skipRules() const;
+    [[nodiscard]] bool isPrintGroups() const;
+    [[nodiscard]] bool isSkipRules() const;
 
     [[nodiscard]] std::optional<std::vector<std::string>> layouts() const;
     [[nodiscard]] std::optional<std::string> nextLayoutShortcut() const;
 
 private:
-    [[nodiscard]] static std::filesystem::path defaultConfigPath();
+    [[nodiscard]] size_t specifiedOptionsCount(const boost::program_options::options_description &optionsGroup) const;
 
     template<typename T, typename Key>
     [[nodiscard]] std::optional<T> findOptional(Key key) const;
+
+    [[nodiscard]] static std::filesystem::path defaultConfigPath();
 
     boost::program_options::variables_map m_parameters;
     bool m_printInfoOnly;

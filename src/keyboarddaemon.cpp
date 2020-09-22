@@ -39,19 +39,19 @@ KeyboardDaemon::KeyboardDaemon(const Parameters &parameters)
     if (!m_display)
         throw std::logic_error("Unable to connect to X server");
 
-    if (parameters.printCurrentGroup()) {
+    if (parameters.isPrintCurrentGroup()) {
         printGroupNameFromKeyboardRules(currentGroup());
         m_needProcessEvents = false;
         return;
     }
 
-    if (std::optional<char> group = parameters.setGroup(); group) {
+    if (std::optional<char> group = parameters.groupToSet(); group) {
         setGroup(group.value());
         m_needProcessEvents = false;
         return;
     }
 
-    if (parameters.nextGroup()) {
+    if (parameters.isSwitchToNextGroup()) {
         setGroup(currentGroup() + 1);
         m_needProcessEvents = false;
         return;
@@ -227,15 +227,15 @@ void KeyboardDaemon::printGroupNameFromKeyboardRules(unsigned char group)
 
 void KeyboardDaemon::loadParameters(const Parameters &parameters)
 {
-    m_useDifferentGroups = parameters.useDifferentGroups();
+    m_useDifferentGroups = parameters.isUseDifferentGroups();
     m_useDifferentLayouts = parameters.useDifferentLayouts();
-    m_printGroups = parameters.printGroups();
+    m_printGroups = parameters.isPrintGroups();
 
     const KeyboardSymbols symbols = serverSymbols();
     if (std::optional<std::vector<std::string>> layouts = parameters.layouts(); layouts) {
         for (std::string &layout : layouts.value())
             m_layouts.emplace_back(std::move(layout), symbols.options);
-        if (!parameters.skipRules())
+        if (!parameters.isSkipRules())
             saveKeyboardRules();
         setLayout(0);
     } else {

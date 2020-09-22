@@ -24,6 +24,7 @@
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
 
+#include <algorithm>
 #include <iostream>
 
 namespace po = boost::program_options;
@@ -37,11 +38,14 @@ Parameters::Parameters(int argc, char *argv[])
             ("version,v", "Print version number and exit.")
             ("print-current-group,c", po::bool_switch(), "Print current group and exit.")
             ("next-group,x", po::bool_switch(), "Switch to the next group and exit.")
-            ("set-group,i", po::value<char>()->value_name("group index"), "Switch group to the specified index.")
+            ("set-group,i", po::value<char>()->value_name("group index"), "Switch group to the specified index.");
+
+    po::options_description settings("Settings");
+    settings.add_options()
             ("settings,s", po::value<fs::path>()->value_name("path")->default_value(defaultConfigPath()), "Path to settings file.");
 
-    po::options_description configuration("Daemon configuration");
-    configuration.add_options()
+    po::options_description daemonConfiguration("Daemon configuration");
+    daemonConfiguration.add_options()
             ("general.different-groups,g", po::bool_switch(), "Use different groups for each window.")
             ("general.different-layout,a", po::bool_switch(), "Use different layouts for each window.")
             ("general.print-groups,p", po::bool_switch(), "Print switched languages in stdout.")
@@ -50,12 +54,18 @@ Parameters::Parameters(int argc, char *argv[])
             ("shortcuts.nextlayout,n", po::value<std::string>(), "Switch to next layout.");
 
     po::options_description allOptions;
-    allOptions.add(commands).add(configuration);
+    allOptions.add(commands).add(settings).add(daemonConfiguration);
 
     store(parse_command_line(argc, argv, allOptions), m_parameters);
 
+    const size_t specifiedCommandsCount = specifiedOptionsCount(commands);
+    if (specifiedCommandsCount > 1)
+        throw std::logic_error("You can't specify more than one command at a time");
+    if (specifiedCommandsCount != 0 && (specifiedOptionsCount(settings) != 0 || specifiedOptionsCount(daemonConfiguration) != 0))
+        throw std::logic_error("You can't execute commands and specify daemon configuration at the same time");
+
     if (const auto &settingsPath = m_parameters["settings"].as<fs::path>(); fs::exists(settingsPath))
-        store(parse_config_file(settingsPath.c_str(), configuration), m_parameters);
+        store(parse_config_file(settingsPath.c_str(), daemonConfiguration), m_parameters);
 
     if (m_parameters.count("help")) {
         std::cout << boost::format("Usage: %s [options]") % argv[0] << allOptions;
@@ -68,25 +78,22 @@ Parameters::Parameters(int argc, char *argv[])
         m_printInfoOnly = true;
         return;
     }
-    
-    if (!m_parameters["next-group"].defaulted() && m_parameters.count("set-group"))
-        throw std::logic_error("--next-group and --set-group cannot be specified at the same time");
 
     notify(m_parameters);
     m_printInfoOnly = false;
 }
 
-bool Parameters::printCurrentGroup() const
+bool Parameters::isPrintCurrentGroup() const
 {
     return m_parameters["print-current-group"].as<bool>();
 }
 
-bool Parameters::nextGroup() const
+bool Parameters::isSwitchToNextGroup() const
 {
     return m_parameters["next-group"].as<bool>();
 }
 
-std::optional<char> Parameters::setGroup() const
+std::optional<char> Parameters::groupToSet() const
 {
     return findOptional<char>("set-group");
 }
@@ -96,7 +103,7 @@ bool Parameters::isPrintInfoOnly() const
     return m_printInfoOnly;
 }
 
-bool Parameters::useDifferentGroups() const
+bool Parameters::isUseDifferentGroups() const
 {
     return m_parameters["general.different-groups"].as<bool>();
 }
@@ -106,12 +113,12 @@ bool Parameters::useDifferentLayouts() const
     return m_parameters["general.different-layout"].as<bool>();
 }
 
-bool Parameters::printGroups() const
+bool Parameters::isPrintGroups() const
 {
     return m_parameters["general.print-groups"].as<bool>();
 }
 
-bool Parameters::skipRules() const
+bool Parameters::isSkipRules() const
 {
     return m_parameters["general.skip-rules"].as<bool>();
 }
@@ -126,13 +133,15 @@ std::optional<std::string> Parameters::nextLayoutShortcut() const
     return findOptional<std::string>("shortcuts.nextlayout");
 }
 
-fs::path Parameters::defaultConfigPath()
+size_t Parameters::specifiedOptionsCount(const boost::program_options::options_description &optionsGroup) const
 {
-    const char *home = getenv("HOME");
-    if (home == nullptr)
-        return {};
-
-    return fs::path(home) / ".config/akd/akd.conf";
+    const std::ptrdiff_t count = std::count_if(optionsGroup.options().begin(), optionsGroup.options().end(), [this](const boost::shared_ptr<boost::program_options::option_description> &option) {
+        auto it = m_parameters.find(option->long_name());
+        if (it == m_parameters.end())
+            return false;
+        return !it->second.defaulted();
+    });
+    return static_cast<size_t>(count);
 }
 
 template<typename T, typename Key>
@@ -142,4 +151,13 @@ std::optional<T> Parameters::findOptional(Key key) const
     if (it != m_parameters.end())
         return boost::any_cast<T>(it->second.value());
     return std::nullopt;
+}
+
+fs::path Parameters::defaultConfigPath()
+{
+    const char *home = getenv("HOME");
+    if (home == nullptr)
+        return {};
+
+    return fs::path(home) / ".config/akd/akd.conf";
 }
