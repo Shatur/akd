@@ -1,16 +1,21 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(akd VERSION 2.1.0 LANGUAGES CXX DESCRIPTION "Advanced Keyboard Daemon")
+project(akd VERSION 2.1.0 LANGUAGES CXX)
+
+set(PROJECT_LABEL "Advanced Keyboard Daemon")
+set(PROJECT_DESCRIPTION "a keyboard userspace daemon")
+set(PROJECT_HOMEPAGE_URL https://github.com/Shatur95/akd)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(X11 COMPONENTS xkbfile REQUIRED)
-find_package(Boost COMPONENTS program_options REQUIRED)
+find_package(X11 COMPONENTS xkbfile)
+find_package(Boost COMPONENTS program_options)
 
 configure_file(src/cmake.h.in cmake.h)
+configure_file(man/${PROJECT_NAME}.1.in ${PROJECT_NAME}.1)
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
@@ -24,3 +29,4 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} Boost::program_options X11::xkbfile)
 
 install(TARGETS ${PROJECT_NAME})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.1 TYPE MAN)

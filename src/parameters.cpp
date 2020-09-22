@@ -39,7 +39,7 @@ Parameters::Parameters(int argc, char *argv[])
             ("version,v", "Print version number and exit.")
             ("print-current-group,c", po::bool_switch(), "Print current group and exit.")
             ("next-group,x", po::bool_switch(), "Switch to the next group and exit.")
-            ("set-group,i", po::value<char>()->value_name("group index"), "Switch group to the specified index.");
+            ("set-group,i", po::value<char>()->value_name("index"), "Switch group to the specified index.");
 
     po::options_description settings("Settings");
     settings.add_options()

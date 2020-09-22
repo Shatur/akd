@@ -1,0 +1,143 @@
+.ig
+Copyright © 2019-2020 Hennadii Chernyshchyk <genaloner@gmail.com>
+
+This file is part of Advanced Keyboard Daemon.
+
+Advanced Keyboard Daemon is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a get of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+..
+.TH @PROJECT_NAME@ 1 "2020" "@PROJECT_NAME@ @PROJECT_VERSION@" "@PROJECT_NAME@ - @PROJECT_LABEL@"
+
+.SH NAME
+
+.B @PROJECT_NAME@
+- @PROJECT_DESCRIPTION@
+
+.SH SYNOPSIS
+
+.B @PROJECT_NAME@
+[options]
+
+.SH DESCRIPTION
+
+.B Advanced Keyboard Daemon
+is a small and efficient keyboard daemon for X11 written in C++17.
+
+.SH OPTIONS
+
+.SS Commands
+
+You can specify only one command at a time. Any of this parameters are incompatible with \fBCommands\fR
+
+.TP
+.B "-h, --help"
+Print usage information and exit
+
+.TP
+.B "-v, --version"
+Print version number and exit
+
+.TP
+.B "-c, --print-current-group"
+Print current group and exit
+
+.TP
+.B "-x, --next-group"
+Switch to the next group and exit
+.TP
+
+.BI "-i, --set-group=" "index"
+Switch group to the specified index
+
+.SS Settings
+
+.TP
+.BI "-s, --settings=" "[~/.config/akd/akd.conf]"
+Path to settings file
+
+.SS Daemon configuration
+
+Any of this parameters are incompatible with \fBCommands\fR
+
+.TP
+.B "-g, --general.different-groups"
+Use different groups for each window
+
+.TP
+.B "-a, --general.different-layout"
+Use different layouts for each window
+
+.TP
+.B "-p, --general.print-groups"
+Print switched languages in stdout
+
+.TP
+.B "-r, --general.skip-rules"
+Do not update keyboard rules, useful if you use only this program to work with keyboard
+
+.TP
+.BI "-l, --general.layouts=" "layout[...]"
+Languages separated by ','. Can be specified several times to define several layouts.
+
+.TP
+.B "-n, --shortcuts.next-layout"
+Switch to next layout
+
+.SH SHORTCUTS
+
+For switching between groups application uses default X11 configuration. For switching between
+layouts you should define a shortcut by \fB-n, --shortcuts.next-layout\fR. You can use modifiers
+"Ctrl", "Alt", "Meta" and "Shift" (or their combination) with any symbol key.
+
+.SH CONFIGURATION FILE
+
+To avoid typing the same options every time you can use configuration file
+(from \fB--settings\fR option) in combination with CLI parameters
+(CLI takes precedence over the configuration file). Settings uses
+INI file \fIhttps://en.wikipedia.org/wiki/INI_file\fR syntax and contains the same options as
+in \fBConfiguration\fR section. So, \fBgeneral.layouts\fR defines \fB[general]\fR section and
+\fBlayouts\fR value.
+
+.B For example:
+.RS
+[general]
+.br
+print-groups=true
+.br
+layouts=en,ru en,ua
+.br
+
+[shortcuts]
+.br
+next-layout=Ctrl+Alt+F
+.RE
+
+.B Equivalent to:
+.RS
+akd -p -l en,ru en,ua -n Ctrl+Alt+F
+.RE
+
+.SH AUTHOR
+
+Hennadii Chernyshchyk (\fIgenaloner@gmail.com\fR)
+
+.SH SEE ALSO
+
+.B Project homepage:
+.RS
+.I @PROJECT_HOMEPAGE_URL@
+.RE
+
+.SH LICENSE
+
+GPL
