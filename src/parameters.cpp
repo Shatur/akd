@@ -75,7 +75,7 @@ Parameters::Parameters(int argc, char *argv[])
     }
 
     if (m_parameters.count("version")) {
-        std::cout << boost::format("%s %d.%d.%d\n") % PROJECT_DESCRIPTION % PROJECT_VERSION_MAJOR % PROJECT_VERSION_MINOR % PROJECT_VERSION_PATCH;
+        std::cout << boost::format("%s %d.%d.%d\n") % PROJECT_LABEL % PROJECT_VERSION_MAJOR % PROJECT_VERSION_MINOR % PROJECT_VERSION_PATCH;
         m_printInfoOnly = true;
         return;
     }
