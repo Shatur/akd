@@ -23,7 +23,7 @@
 - Print group to `stdout` on change (or just once and exit).
 - Switch groups by command.
 
-Read `man akd` for more information or pass `-h / --help` as argument.
+Read `man akd` for more information or pass `-h` / `--help` as argument.
 
 ## Dependencies
 
