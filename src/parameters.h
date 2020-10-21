@@ -34,6 +34,7 @@ public:
     [[nodiscard]] bool isPrintInfoOnly() const;
 
     [[nodiscard]] bool isPrintCurrentGroup() const;
+    [[nodiscard]] bool isPrintCurrentGroupIndex() const;
     [[nodiscard]] bool isSwitchToNextGroup() const;
     [[nodiscard]] std::optional<char> groupToSet() const;
 

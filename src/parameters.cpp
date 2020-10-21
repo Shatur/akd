@@ -38,6 +38,7 @@ Parameters::Parameters(int argc, char *argv[])
             ("help,h", "Print usage information and exit.")
             ("version,v", "Print version number and exit.")
             ("print-current-group,c", po::bool_switch(), "Print current group and exit.")
+            ("print-current-group-index,d", po::bool_switch(), "Print current group index and exit.")
             ("next-group,x", po::bool_switch(), "Switch to the next group and exit.")
             ("set-group,i", po::value<char>()->value_name("index"), "Switch group to the specified index.");
 
@@ -87,6 +88,11 @@ Parameters::Parameters(int argc, char *argv[])
 bool Parameters::isPrintCurrentGroup() const
 {
     return m_parameters["print-current-group"].as<bool>();
+}
+
+bool Parameters::isPrintCurrentGroupIndex() const
+{
+    return m_parameters["print-current-group-index"].as<bool>();
 }
 
 bool Parameters::isSwitchToNextGroup() const

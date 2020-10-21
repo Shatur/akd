@@ -45,6 +45,12 @@ KeyboardDaemon::KeyboardDaemon(const Parameters &parameters)
         return;
     }
 
+    if (parameters.isPrintCurrentGroupIndex()) {
+        std::cout << static_cast<int>(currentGroup()) << std::endl;
+        m_needProcessEvents = false;
+        return;
+    }
+
     if (std::optional<char> group = parameters.groupToSet(); group) {
         setGroup(group.value());
         m_needProcessEvents = false;

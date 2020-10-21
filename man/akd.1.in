@@ -52,6 +52,10 @@ Print version number and exit
 Print current group and exit
 
 .TP
+.B "-d, --print-current-group-index"
+Print current group index and exit
+
+.TP
 .B "-x, --next-group"
 Switch to the next group and exit
 .TP
