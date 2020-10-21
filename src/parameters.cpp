@@ -51,9 +51,9 @@ Parameters::Parameters(int argc, char *argv[])
             ("general.different-groups,g", po::bool_switch(), "Use different groups for each window.")
             ("general.different-layout,a", po::bool_switch(), "Use different layouts for each window.")
             ("general.print-groups,p", po::bool_switch(), "Print switched languages in stdout.")
-            ("general.skip-rules,r", po::bool_switch(), "Do not update keyboard rules, useful if you use only this program to work with keyboard.")
+            ("shortcuts.nextlayout,n", po::value<std::string>(), "Switch to next layout.")
             ("general.layouts,l", po::value<std::vector<std::string>>()->multitoken(), "Languages separated by ','. Can be specified several times to define several layouts.")
-            ("shortcuts.nextlayout,n", po::value<std::string>(), "Switch to next layout.");
+            ("general.skip-rules", po::bool_switch(), "Do not update keyboard rules. Improves performance, but other applications won't be aware of the layout changes. Use with caution.");
 
     po::options_description allOptions;
     allOptions.add(commands).add(settings).add(daemonConfiguration);
