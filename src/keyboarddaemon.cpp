@@ -40,7 +40,7 @@ KeyboardDaemon::KeyboardDaemon(const Parameters &parameters)
         throw std::logic_error("Unable to connect to X server");
 
     if (parameters.isPrintCurrentGroup()) {
-        printGroupNameFromKeyboardRules(currentGroup());
+        printGroupFromKeyboardRules(currentGroup());
         m_needProcessEvents = false;
         return;
     }
@@ -124,7 +124,7 @@ void KeyboardDaemon::switchToNextLayout()
 
     setLayout(layoutIndex);
 
-    printGroupName(m_currentWindow->second.group, layoutIndex);
+    printGroupIfDifferent(m_currentWindow->second.group, layoutIndex);
     m_currentWindow->second.layoutIndex = layoutIndex;
 }
 
@@ -148,7 +148,7 @@ void KeyboardDaemon::applyWindowLayout(const XPropertyEvent &event)
         newWindow->second.group = m_currentWindow->second.group;
     }
 
-    printGroupName(newWindow->second.group, newWindow->second.layoutIndex);
+    printGroupIfDifferent(newWindow->second.group, newWindow->second.layoutIndex);
     m_currentWindow = newWindow;
 }
 
@@ -170,8 +170,8 @@ void KeyboardDaemon::saveCurrentGroup(const XkbStateNotifyEvent &event)
         return;
     }
 
-    printGroupName(event.group);
     m_currentWindow->second.group = event.group;
+    printCurrentGroup();
 }
 
 void KeyboardDaemon::setLayout(size_t layoutIndex)
@@ -240,29 +240,19 @@ void KeyboardDaemon::saveCurrentGroup()
 {
     const unsigned char group = currentGroup();
 
-    printGroupName(group);
     m_currentWindow->second.group = group;
+    printCurrentGroup();
 }
 
-void KeyboardDaemon::printGroupName(unsigned char group, std::optional<size_t> layoutIndex) const
+void KeyboardDaemon::printCurrentGroup() const
 {
     if (!m_printGroups)
         return;
 
-    if (!layoutIndex) {
-        // Layout index do not changed
-        std::cout << m_layouts[m_currentWindow->second.layoutIndex].groupName(group) << std::endl;
-        return;
-    }
-
-    // Layout changed, compare groups lexically to check if group changed
-    const std::string_view newGroupName = m_layouts[layoutIndex.value()].groupName(group);
-    const std::string_view currentGroupName = m_layouts[m_currentWindow->second.layoutIndex].groupName(m_currentWindow->second.group);
-    if (newGroupName != currentGroupName)
-        std::cout << newGroupName << std::endl;
+    std::cout << m_layouts[m_currentWindow->second.layoutIndex].groupName(m_currentWindow->second.group) << std::endl;
 }
 
-void KeyboardDaemon::printGroupNameFromKeyboardRules(unsigned char group)
+void KeyboardDaemon::printGroupFromKeyboardRules(unsigned char group) const
 {
     std::unique_ptr<XkbRF_VarDefsRec, VarDefsDeleter> currentVarDefs(new XkbRF_VarDefsRec);
     if (!XkbRF_GetNamesProp(m_display.get(), nullptr, currentVarDefs.get()))
@@ -273,6 +263,18 @@ void KeyboardDaemon::printGroupNameFromKeyboardRules(unsigned char group)
     std::advance(currentGroupName, group);
 
     std::cout << currentGroupName.current_token() << '\n';
+}
+
+void KeyboardDaemon::printGroupIfDifferent(unsigned char newGroup, size_t newLayoutIndex) const
+{
+    if (!m_printGroups)
+        return;
+
+    // Compare groups lexically to check if groups different
+    const std::string_view newGroupName = m_layouts[newLayoutIndex].groupName(newGroup);
+    const std::string_view currentGroupName = m_layouts[m_currentWindow->second.layoutIndex].groupName(m_currentWindow->second.group);
+    if (newGroupName != currentGroupName)
+        std::cout << newGroupName << std::endl;
 }
 
 KeyboardSymbols KeyboardDaemon::serverSymbols() const

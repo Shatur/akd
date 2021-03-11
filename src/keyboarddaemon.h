@@ -62,8 +62,9 @@ private:
     void saveKeyboardRules();
     void saveCurrentGroup();
 
-    void printGroupName(unsigned char group, std::optional<size_t> layoutIndex = std::nullopt) const;
-    void printGroupNameFromKeyboardRules(unsigned char group);
+    void printCurrentGroup() const;
+    void printGroupFromKeyboardRules(unsigned char group) const;
+    void printGroupIfDifferent(unsigned char newGroup, size_t newLayoutIndex) const;
     [[nodiscard]] KeyboardSymbols serverSymbols() const;
     [[nodiscard]] Window activeWindow() const;
     [[nodiscard]] unsigned char currentGroup() const;
