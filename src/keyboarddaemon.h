@@ -83,6 +83,7 @@ private:
     std::unique_ptr<char[], XlibDeleter> m_currentRulesPath;
 
     decltype(m_windows)::iterator m_currentWindow;
+    std::optional<unsigned char> m_defaultGroup;
     bool m_ignoreNextLayoutSave = false;
     bool m_needProcessEvents;
     bool m_useDifferentGroups;

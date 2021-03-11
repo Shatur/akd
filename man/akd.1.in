@@ -94,6 +94,10 @@ Switch to next layout
 Languages separated by ','. Can be specified several times to define several layouts.
 
 .TP
+.B "-e, --general.default-group"
+The index of the group to switch when changing the layout
+
+.TP
 .B "--general.skip-rules"
 Do not update keyboard rules. Improves performance, but other applications won't be aware of the layout changes. Use with caution.
 

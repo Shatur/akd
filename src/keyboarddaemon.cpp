@@ -124,7 +124,15 @@ void KeyboardDaemon::switchToNextLayout()
 
     setLayout(layoutIndex);
 
-    printGroupIfDifferent(m_currentWindow->second.group, layoutIndex);
+    if (m_defaultGroup && m_currentWindow->second.group != m_defaultGroup.value()) {
+        setGroup(m_defaultGroup.value());
+        printGroupIfDifferent(m_defaultGroup.value(), layoutIndex);
+
+        m_currentWindow->second.group = m_defaultGroup.value();
+    } else {
+        printGroupIfDifferent(m_currentWindow->second.group, layoutIndex);
+    }
+
     m_currentWindow->second.layoutIndex = layoutIndex;
 }
 
@@ -202,6 +210,7 @@ void KeyboardDaemon::setGroup(unsigned char group)
 
 void KeyboardDaemon::loadParameters(const Parameters &parameters)
 {
+    m_defaultGroup = parameters.defaultGroup();
     m_useDifferentGroups = parameters.isUseDifferentGroups();
     m_useDifferentLayouts = parameters.useDifferentLayouts();
     m_printGroups = parameters.isPrintGroups();

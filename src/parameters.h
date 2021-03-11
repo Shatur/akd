@@ -42,6 +42,7 @@ public:
     [[nodiscard]] bool useDifferentLayouts() const;
     [[nodiscard]] bool isPrintGroups() const;
     [[nodiscard]] bool isSkipRules() const;
+    [[nodiscard]] std::optional<unsigned char> defaultGroup() const;
 
     [[nodiscard]] std::optional<std::vector<std::string>> layouts() const;
     [[nodiscard]] std::optional<std::string> nextLayoutShortcut() const;

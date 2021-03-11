@@ -53,6 +53,7 @@ Parameters::Parameters(int argc, char *argv[])
             ("general.print-groups,p", po::bool_switch(), "Print switched languages in stdout.")
             ("shortcuts.nextlayout,n", po::value<std::string>(), "Switch to next layout.")
             ("general.layouts,l", po::value<std::vector<std::string>>()->multitoken(), "Languages separated by ','. Can be specified several times to define several layouts.")
+            ("general.default-group,e", po::value<unsigned>(), "The index of the group to switch when changing the layout.")
             ("general.skip-rules", po::bool_switch(), "Do not update keyboard rules. Improves performance, but other applications won't be aware of the layout changes. Use with caution.");
 
     po::options_description allOptions;
@@ -128,6 +129,11 @@ bool Parameters::isPrintGroups() const
 bool Parameters::isSkipRules() const
 {
     return m_parameters["general.skip-rules"].as<bool>();
+}
+
+std::optional<unsigned char> Parameters::defaultGroup() const
+{
+    return findOptional<unsigned char>("general.default-group");
 }
 
 std::optional<std::vector<std::string>> Parameters::layouts() const
