@@ -128,17 +128,6 @@ void KeyboardDaemon::switchToNextLayout()
     m_currentWindow->second.layoutIndex = layoutIndex;
 }
 
-void KeyboardDaemon::removeDestroyedWindow(const XDestroyWindowEvent &event)
-{
-    m_windows.erase(event.window);
-}
-
-void KeyboardDaemon::processShortcuts(const XKeyEvent &event)
-{
-    for (const Shortcut &shortcut : m_shortcuts)
-        shortcut.processEvent(event);
-}
-
 void KeyboardDaemon::applyWindowLayout(const XPropertyEvent &event)
 {
     if (event.state != PropertyNewValue || event.atom != m_activeWindowProperty)
@@ -161,6 +150,17 @@ void KeyboardDaemon::applyWindowLayout(const XPropertyEvent &event)
 
     printGroupName(newWindow->second.group, newWindow->second.layoutIndex);
     m_currentWindow = newWindow;
+}
+
+void KeyboardDaemon::removeDestroyedWindow(const XDestroyWindowEvent &event)
+{
+    m_windows.erase(event.window);
+}
+
+void KeyboardDaemon::processShortcuts(const XKeyEvent &event)
+{
+    for (const Shortcut &shortcut : m_shortcuts)
+        shortcut.processEvent(event);
 }
 
 void KeyboardDaemon::saveCurrentGroup(const XkbStateNotifyEvent &event)
@@ -198,37 +198,6 @@ void KeyboardDaemon::setGroup(unsigned char group)
 
     // This will produce XkbStateNotifyEvent event, ignore it
     m_ignoreNextLayoutSave = true;
-}
-
-void KeyboardDaemon::printGroupName(unsigned char group, std::optional<size_t> layoutIndex) const
-{
-    if (!m_printGroups)
-        return;
-
-    if (!layoutIndex) {
-        // Layout index do not changed
-        std::cout << m_layouts[m_currentWindow->second.layoutIndex].groupName(group) << std::endl;
-        return;
-    }
-
-    // Layout changed, compare groups lexically to check if group changed
-    const std::string_view newGroupName = m_layouts[layoutIndex.value()].groupName(group);
-    const std::string_view currentGroupName = m_layouts[m_currentWindow->second.layoutIndex].groupName(m_currentWindow->second.group);
-    if (newGroupName != currentGroupName)
-        std::cout << newGroupName << std::endl;
-}
-
-void KeyboardDaemon::printGroupNameFromKeyboardRules(unsigned char group)
-{
-    std::unique_ptr<XkbRF_VarDefsRec, VarDefsDeleter> currentVarDefs(new XkbRF_VarDefsRec);
-    if (!XkbRF_GetNamesProp(m_display.get(), nullptr, currentVarDefs.get()))
-        throw std::logic_error("Unable to get keyboard rules");
-
-    boost::tokenizer layoutTokenizer(std::string_view(currentVarDefs->layout), boost::char_separator(","));
-    auto currentGroupName = layoutTokenizer.begin();
-    std::advance(currentGroupName, group);
-
-    std::cout << currentGroupName.current_token() << '\n';
 }
 
 void KeyboardDaemon::loadParameters(const Parameters &parameters)
@@ -273,6 +242,37 @@ void KeyboardDaemon::saveCurrentGroup()
 
     printGroupName(group);
     m_currentWindow->second.group = group;
+}
+
+void KeyboardDaemon::printGroupName(unsigned char group, std::optional<size_t> layoutIndex) const
+{
+    if (!m_printGroups)
+        return;
+
+    if (!layoutIndex) {
+        // Layout index do not changed
+        std::cout << m_layouts[m_currentWindow->second.layoutIndex].groupName(group) << std::endl;
+        return;
+    }
+
+    // Layout changed, compare groups lexically to check if group changed
+    const std::string_view newGroupName = m_layouts[layoutIndex.value()].groupName(group);
+    const std::string_view currentGroupName = m_layouts[m_currentWindow->second.layoutIndex].groupName(m_currentWindow->second.group);
+    if (newGroupName != currentGroupName)
+        std::cout << newGroupName << std::endl;
+}
+
+void KeyboardDaemon::printGroupNameFromKeyboardRules(unsigned char group)
+{
+    std::unique_ptr<XkbRF_VarDefsRec, VarDefsDeleter> currentVarDefs(new XkbRF_VarDefsRec);
+    if (!XkbRF_GetNamesProp(m_display.get(), nullptr, currentVarDefs.get()))
+        throw std::logic_error("Unable to get keyboard rules");
+
+    boost::tokenizer layoutTokenizer(std::string_view(currentVarDefs->layout), boost::char_separator(","));
+    auto currentGroupName = layoutTokenizer.begin();
+    std::advance(currentGroupName, group);
+
+    std::cout << currentGroupName.current_token() << '\n';
 }
 
 KeyboardSymbols KeyboardDaemon::serverSymbols() const
