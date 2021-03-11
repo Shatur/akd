@@ -84,7 +84,7 @@ private:
 
     decltype(m_windows)::iterator m_currentWindow;
     std::optional<unsigned char> m_defaultGroup;
-    bool m_ignoreNextLayoutSave = false;
+    bool m_ignoreNextGroupSave = false;
     bool m_needProcessEvents;
     bool m_useDifferentGroups;
     bool m_useDifferentLayouts;

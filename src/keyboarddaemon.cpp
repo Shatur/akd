@@ -173,8 +173,8 @@ void KeyboardDaemon::processShortcuts(const XKeyEvent &event)
 
 void KeyboardDaemon::saveCurrentGroup(const XkbStateNotifyEvent &event)
 {
-    if (m_ignoreNextLayoutSave) {
-        m_ignoreNextLayoutSave = false;
+    if (m_ignoreNextGroupSave) {
+        m_ignoreNextGroupSave = false;
         return;
     }
 
@@ -205,7 +205,7 @@ void KeyboardDaemon::setGroup(unsigned char group)
         throw std::logic_error("Unable to switch group to " + std::to_string(group));
 
     // This will produce XkbStateNotifyEvent event, ignore it
-    m_ignoreNextLayoutSave = true;
+    m_ignoreNextGroupSave = true;
 }
 
 void KeyboardDaemon::loadParameters(const Parameters &parameters)
