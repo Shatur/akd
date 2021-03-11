@@ -86,10 +86,6 @@ Use different layouts for each window
 Print switched languages in stdout
 
 .TP
-.B "-n, --shortcuts.next-layout"
-Switch to next layout
-
-.TP
 .BI "-l, --general.layouts=" "layout[...]"
 Languages separated by ','. Can be specified several times to define several layouts.
 
@@ -100,6 +96,10 @@ The index of the group to switch when changing the layout
 .TP
 .B "--general.skip-rules"
 Do not update keyboard rules. Improves performance, but other applications won't be aware of the layout changes. Use with caution.
+
+.TP
+.B "-n, --shortcuts.next-layout"
+Switch to next layout
 
 .SH SHORTCUTS
 
