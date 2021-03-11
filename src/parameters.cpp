@@ -40,7 +40,7 @@ Parameters::Parameters(int argc, char *argv[])
             ("print-current-group,c", po::bool_switch(), "Print current group and exit.")
             ("print-current-group-index,d", po::bool_switch(), "Print current group index and exit.")
             ("next-group,x", po::bool_switch(), "Switch to the next group and exit.")
-            ("set-group,i", po::value<char>()->value_name("index"), "Switch group to the specified index.");
+            ("set-group,i", po::value<unsigned>()->value_name("index"), "Switch group to the specified index.");
 
     po::options_description settings("Settings");
     settings.add_options()
@@ -100,9 +100,9 @@ bool Parameters::isSwitchToNextGroup() const
     return m_parameters["next-group"].as<bool>();
 }
 
-std::optional<char> Parameters::groupToSet() const
+std::optional<unsigned char> Parameters::groupToSet() const
 {
-    return findOptional<char>("set-group");
+    return findOptional<unsigned char>("set-group");
 }
 
 bool Parameters::isPrintInfoOnly() const
@@ -155,8 +155,12 @@ template<typename T, typename Key>
 std::optional<T> Parameters::findOptional(Key key) const
 {
     auto it = m_parameters.find(key);
-    if (it != m_parameters.end())
+    if (it != m_parameters.end()) {
+        // Boost represents unsigned char as a character, so store it as unsigned int and cast on read
+        if constexpr (std::is_same_v<T, unsigned char>)
+            return boost::numeric_cast<unsigned char>(boost::any_cast<unsigned>(it->second.value()));
         return boost::any_cast<T>(it->second.value());
+    }
     return std::nullopt;
 }
 

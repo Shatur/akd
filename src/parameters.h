@@ -36,7 +36,7 @@ public:
     [[nodiscard]] bool isPrintCurrentGroup() const;
     [[nodiscard]] bool isPrintCurrentGroupIndex() const;
     [[nodiscard]] bool isSwitchToNextGroup() const;
-    [[nodiscard]] std::optional<char> groupToSet() const;
+    [[nodiscard]] std::optional<unsigned char> groupToSet() const;
 
     [[nodiscard]] bool isUseDifferentGroups() const;
     [[nodiscard]] bool useDifferentLayouts() const;
