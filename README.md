@@ -17,11 +17,11 @@
 
 ## Features
 
-- Low memory consumption (~350 KB).
-- Layout configuration.
 - Remember different keyboard layouts and groups for each window.
+- Switch layouts by shortcut.
+- Layout configuration.
 - Print group to `stdout` on change (or just once and exit).
-- Switch groups by command.
+- Low memory consumption (~350 KB).
 
 Read `man akd` for more information or pass `-h` / `--help` as argument.
 
