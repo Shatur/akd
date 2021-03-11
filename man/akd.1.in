@@ -41,33 +41,33 @@ You can specify only one command at a time. Any of this parameters are incompati
 
 .TP
 .B "-h, --help"
-Print usage information and exit
+Print usage information and exit.
 
 .TP
 .B "-v, --version"
-Print version number and exit
+Print version number and exit.
 
 .TP
 .B "-c, --print-current-group"
-Print current group and exit
+Print current group and exit.
 
 .TP
 .B "-d, --print-current-group-index"
-Print current group index and exit
+Print current group index and exit.
 
 .TP
 .B "-x, --next-group"
-Switch to the next group and exit
-.TP
+Switch to the next group and exit.
 
+.TP
 .BI "-i, --set-group=" "index"
-Switch group to the specified index
+Switch group to the specified index.
 
 .SS Settings
 
 .TP
 .BI "-s, --settings=" "[~/.config/akd/akd.conf]"
-Path to settings file
+Path to settings file.
 
 .SS Daemon configuration
 
@@ -75,15 +75,15 @@ Any of this parameters are incompatible with \fBCommands\fR
 
 .TP
 .B "-g, --general.different-groups"
-Use different groups for each window
+Use different groups for each window.
 
 .TP
 .B "-a, --general.different-layout"
-Use different layouts for each window
+Use different layouts for each window.
 
 .TP
 .B "-p, --general.print-groups"
-Print switched languages in stdout
+Print switched languages in stdout.
 
 .TP
 .BI "-l, --general.layouts=" "layout[...]"
@@ -91,7 +91,7 @@ Languages separated by ','. Can be specified several times to define several lay
 
 .TP
 .B "-e, --general.default-group"
-The index of the group to switch when changing the layout
+The index of the group to switch when changing the layout.
 
 .TP
 .B "--general.skip-rules"
@@ -99,7 +99,7 @@ Do not update keyboard rules. Improves performance, but other applications won't
 
 .TP
 .B "-n, --shortcuts.next-layout"
-Switch to next layout
+Switch to next layout.
 
 .SH SHORTCUTS
 
