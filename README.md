@@ -53,3 +53,11 @@ cmake --build .
 ```
 
 You will then get a binary named `akd`.
+
+## Tips
+
+### `i3bar` keyboard layout indicator
+
+You can use example scripts in `contrib/` directory to add a keyboard layout indicator to your `i3bar`, if you use `i3status` as the status generator. For more information on how they work refer to [i3status docs](https://i3wm.org/docs/i3status.html).
+
+Also, the scripts should be easily adaptable for other text-based status generators.
