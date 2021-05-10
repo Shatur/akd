@@ -85,8 +85,9 @@ bool KeyboardDaemon::needProcessEvents() const
 
 void KeyboardDaemon::processEvents()
 {
+    XkbEvent event;
+
     while (true) {
-        XkbEvent event;
         XNextEvent(m_display.get(), &event.core);
 
         switch (event.type) {
