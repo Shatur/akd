@@ -11,8 +11,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(X11 COMPONENTS xkbfile)
-find_package(Boost COMPONENTS program_options)
+find_package(X11 REQUIRED COMPONENTS xkbfile)
+find_package(Boost REQUIRED COMPONENTS program_options)
 
 configure_file(src/cmake.h.in cmake.h)
 configure_file(man/${PROJECT_NAME}.1.in man1/${PROJECT_NAME}.1)
