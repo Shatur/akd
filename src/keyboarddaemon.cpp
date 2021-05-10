@@ -189,7 +189,7 @@ void KeyboardDaemon::setLayout(size_t layoutIndex)
     m_currentComponents.symbols = m_layouts[layoutIndex].symbols.data();
 
     // Send it back to X11
-    const std::unique_ptr<XkbDescRec, XlibDeleter> newDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, &m_currentComponents, XkbGBN_ClientSymbolsMask | XkbGBN_KeyNamesMask, 0, true));
+    const std::unique_ptr<XkbDescRec, XlibDeleter> newDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, &m_currentComponents, XkbGBN_SymbolsMask, 0, true));
     if (!newDesc)
         throw std::logic_error("Unable to build keyboard description with the following symbols: " + m_layouts[layoutIndex].symbols);
 
