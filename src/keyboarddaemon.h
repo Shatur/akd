@@ -64,7 +64,6 @@ private:
     void printCurrentGroup() const;
     void printGroupFromKeyboardRules(unsigned char group) const;
     void printGroupIfDifferent(unsigned char newGroup, size_t newLayoutIndex) const;
-    [[nodiscard]] KeyboardSymbols serverSymbols() const;
     [[nodiscard]] Window activeWindow() const;
     [[nodiscard]] unsigned char currentGroup() const;
 

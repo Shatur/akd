@@ -20,7 +20,7 @@
 
 #include "keyboarddaemon.h"
 
-#include "keyboardsymbolsparser.h"
+#include "keyboardsymbols.h"
 #include "parameters.h"
 
 #include <boost/algorithm/string/join.hpp>
@@ -31,8 +31,6 @@
 #include <iostream>
 
 #include <X11/extensions/XKBrules.h>
-
-namespace x3 = boost::spirit::x3;
 
 KeyboardDaemon::KeyboardDaemon(const Parameters &parameters)
 {
@@ -204,7 +202,7 @@ void KeyboardDaemon::loadParameters(const Parameters &parameters)
     m_useDifferentLayouts = parameters.useDifferentLayouts();
     m_printGroups = parameters.isPrintGroups();
 
-    const KeyboardSymbols symbols = serverSymbols();
+    const KeyboardSymbols symbols = KeyboardSymbols::currentSymbols(*m_display);
     if (std::optional<std::vector<std::string>> layouts = parameters.layouts(); layouts) {
         for (std::string &layout : layouts.value())
             m_layouts.emplace_back(*m_display, std::move(layout), symbols.options);
@@ -258,19 +256,6 @@ void KeyboardDaemon::printGroupIfDifferent(unsigned char newGroup, size_t newLay
     const std::string_view currentGroupName = m_layouts[m_currentWindow->second.layoutIndex].groupName(m_currentWindow->second.group);
     if (newGroupName != currentGroupName)
         std::cout << newGroupName << std::endl;
-}
-
-KeyboardSymbols KeyboardDaemon::serverSymbols() const
-{
-    const std::unique_ptr<XkbDescRec, XlibDeleter> currentDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, nullptr, XkbGBN_ServerSymbolsMask | XkbGBN_KeyNamesMask, 0, false));
-    if (!currentDesc)
-        throw std::logic_error("Unable to get keyboard symbols");
-
-    KeyboardSymbols symbols;
-    const std::unique_ptr<char[], XlibDeleter> currentSymbols(XGetAtomName(m_display.get(), currentDesc->names->symbols));
-    x3::parse(currentSymbols.get(), currentSymbols.get() + strlen(currentSymbols.get()), KeyboardSymbolsParser::symbolsRule, symbols);
-
-    return symbols;
 }
 
 Window KeyboardDaemon::activeWindow() const

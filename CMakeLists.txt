@@ -18,12 +18,13 @@ configure_file(src/cmake.h.in cmake.h)
 configure_file(man/${PROJECT_NAME}.1.in man1/${PROJECT_NAME}.1)
 
 add_executable(${PROJECT_NAME}
-    src/main.cpp
     src/keyboarddaemon.cpp
-    src/shortcut.cpp
+    src/keyboardsymbols.cpp
     src/layout.cpp
-    src/x11deleters.cpp
+    src/main.cpp
     src/parameters.cpp
+    src/shortcut.cpp
+    src/x11deleters.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} Boost::program_options X11::xkbfile)
