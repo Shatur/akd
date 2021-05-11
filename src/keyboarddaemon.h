@@ -59,7 +59,6 @@ private:
     void setGroup(unsigned char group);
 
     void loadParameters(const Parameters &parameters);
-    void saveKeyboardRules();
     void saveCurrentGroup();
 
     void printCurrentGroup() const;
@@ -77,10 +76,6 @@ private:
     std::unordered_map<Window, Keyboard> m_windows;
     std::vector<Layout> m_layouts;
     std::vector<Shortcut> m_shortcuts;
-
-    XkbComponentNamesRec m_currentComponents{};
-    std::unique_ptr<XkbRF_VarDefsRec, VarDefsWithoutLayoutDeleter> m_currentVarDefs;
-    std::unique_ptr<char[], XlibDeleter> m_currentRulesPath;
 
     decltype(m_windows)::iterator m_currentWindow;
     std::optional<unsigned char> m_defaultGroup;

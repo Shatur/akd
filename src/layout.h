@@ -23,15 +23,28 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
-struct Layout
+#include "x11deleters.h"
+
+class Layout
 {
-    explicit Layout(std::string layout, const std::vector<std::string> &options = {});
+public:
+    explicit Layout(Display &display, std::string layout, const std::vector<std::string> &options = {});
+
+    void apply();
 
     [[nodiscard]] std::string_view groupName(unsigned char group) const;
 
-    std::string layoutString;
-    std::string symbols;
+    static void saveKeyboardRules(Display &display);
+
+private:
+    std::string m_layoutString;
+    std::string m_symbols;
+    Display &m_display;
+
+    static inline std::unique_ptr<XkbRF_VarDefsRec, VarDefsWithoutLayoutDeleter> s_currentVarDefs;
+    static inline std::unique_ptr<char[], XlibDeleter> s_currentRulesPath;
 };
 
 #endif // LAYOUT_H

@@ -185,19 +185,7 @@ void KeyboardDaemon::saveCurrentGroup(const XkbStateNotifyEvent &event)
 
 void KeyboardDaemon::setLayout(size_t layoutIndex)
 {
-    // Replace layouts with specified and generate new symbols string
-    m_currentComponents.symbols = m_layouts[layoutIndex].symbols.data();
-
-    // Send it back to X11
-    const std::unique_ptr<XkbDescRec, XlibDeleter> newDesc(XkbGetKeyboardByName(m_display.get(), XkbUseCoreKbd, &m_currentComponents, XkbGBN_SymbolsMask, 0, true));
-    if (!newDesc)
-        throw std::logic_error("Unable to build keyboard description with the following symbols: " + m_layouts[layoutIndex].symbols);
-
-    if (m_currentVarDefs) {
-        m_currentVarDefs->layout = m_layouts[layoutIndex].layoutString.data();
-        if (!XkbRF_SetNamesProp(m_display.get(), m_currentRulesPath.get(), m_currentVarDefs.get()))
-            throw std::logic_error("Unable to set keyboard rules for " + m_layouts[layoutIndex].symbols);
-    }
+    m_layouts[layoutIndex].apply();
 }
 
 void KeyboardDaemon::setGroup(unsigned char group)
@@ -219,31 +207,16 @@ void KeyboardDaemon::loadParameters(const Parameters &parameters)
     const KeyboardSymbols symbols = serverSymbols();
     if (std::optional<std::vector<std::string>> layouts = parameters.layouts(); layouts) {
         for (std::string &layout : layouts.value())
-            m_layouts.emplace_back(std::move(layout), symbols.options);
+            m_layouts.emplace_back(*m_display, std::move(layout), symbols.options);
         if (!parameters.isSkipRules())
-            saveKeyboardRules();
+            Layout::saveKeyboardRules(*m_display);
         setLayout(0);
     } else {
-        m_layouts.emplace_back(boost::join(symbols.groups, ","));
+        m_layouts.emplace_back(*m_display, boost::join(symbols.groups, ","));
     }
 
     if (const std::optional<std::string> nextLayout = parameters.nextLayoutShortcut(); nextLayout)
         m_shortcuts.emplace_back(nextLayout.value(), *this, &KeyboardDaemon::switchToNextLayout);
-}
-
-void KeyboardDaemon::saveKeyboardRules()
-{
-    char *path;
-    m_currentVarDefs.reset(new XkbRF_VarDefsRec);
-
-    if (!XkbRF_GetNamesProp(m_display.get(), &path, m_currentVarDefs.get()))
-        throw std::logic_error("Unable to get keyboard rules");
-
-    m_currentRulesPath.reset(path);
-
-    // Free layout to replace it with pointer to std::string later
-    if (m_currentVarDefs->layout)
-        XFree(m_currentVarDefs->layout);
 }
 
 void KeyboardDaemon::saveCurrentGroup()

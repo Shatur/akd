@@ -23,25 +23,62 @@
 #include <boost/algorithm/string/join.hpp>
 #include <boost/tokenizer.hpp>
 
-Layout::Layout(std::string layout, const std::vector<std::string> &options)
-    : layoutString(std::move(layout))
+#include <X11/XKBlib.h>
+#include <X11/extensions/XKBrules.h>
+
+Layout::Layout(Display &display, std::string layout, const std::vector<std::string> &options)
+    : m_layoutString(std::move(layout))
+    , m_display(display)
 {
     if (options.empty())
         return;
 
-    symbols = "pc+";
-    boost::tokenizer layoutTokenizer(layoutString, boost::char_separator(","));
+    m_symbols = "pc+";
+    boost::tokenizer layoutTokenizer(m_layoutString, boost::char_separator(","));
     for (auto it = layoutTokenizer.begin(); it != layoutTokenizer.end(); ++it) {
-        symbols += it.current_token();
+        m_symbols += it.current_token();
         if (it != layoutTokenizer.begin())
-            symbols += ':' + std::to_string(std::distance(layoutTokenizer.begin(), it) + 1);
-        symbols += '+';
+            m_symbols += ':' + std::to_string(std::distance(layoutTokenizer.begin(), it) + 1);
+        m_symbols += '+';
     }
 
-    symbols += boost::join(options, "+");
+    m_symbols += boost::join(options, "+");
+}
+
+void Layout::apply()
+{
+    // Replace layouts with specified and generate new symbols string
+    XkbComponentNamesRec currentComponents{};
+    currentComponents.symbols = m_symbols.data();
+
+    // Send it back to X11
+    const std::unique_ptr<XkbDescRec, XlibDeleter> newDesc(XkbGetKeyboardByName(&m_display, XkbUseCoreKbd, &currentComponents, XkbGBN_SymbolsMask, 0, true));
+    if (!newDesc)
+        throw std::logic_error("Unable to build keyboard description with the following symbols: " + m_symbols);
+
+    if (s_currentVarDefs) {
+        s_currentVarDefs->layout = m_layoutString.data();
+        if (!XkbRF_SetNamesProp(&m_display, s_currentRulesPath.get(), s_currentVarDefs.get()))
+            throw std::logic_error("Unable to set keyboard rules for " + m_symbols);
+    }
 }
 
 std::string_view Layout::groupName(unsigned char group) const
 {
-    return {layoutString.data() + group * 2 + group, 2};
+    return {m_layoutString.data() + group * 2 + group, 2};
+}
+
+void Layout::saveKeyboardRules(Display &display)
+{
+    char *path;
+    s_currentVarDefs.reset(new XkbRF_VarDefsRec);
+
+    if (!XkbRF_GetNamesProp(&display, &path, s_currentVarDefs.get()))
+        throw std::logic_error("Unable to get keyboard rules");
+
+    s_currentRulesPath.reset(path);
+
+    // Free layout to replace it with pointer to std::string later
+    if (s_currentVarDefs->layout)
+        XFree(s_currentVarDefs->layout);
 }
