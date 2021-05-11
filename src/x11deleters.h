@@ -25,8 +25,7 @@
 
 #include <X11/Xlib.h>
 
-class _XkbRF_VarDefs;
-using XkbRF_VarDefsRec = _XkbRF_VarDefs;
+using XkbRF_VarDefsRec = class _XkbRF_VarDefs;
 void freeVarDefsWithoutLayout(XkbRF_VarDefsRec *varDefs);
 void freeVarDefs(XkbRF_VarDefsRec *varDefs);
 
