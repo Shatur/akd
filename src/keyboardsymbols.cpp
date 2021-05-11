@@ -2,6 +2,8 @@
 
 #include "x11deleters.h"
 
+#include <boost/spirit/home/x3.hpp>
+
 #include <X11/XKBlib.h>
 #include <X11/extensions/XKBrules.h>
 

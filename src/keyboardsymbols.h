@@ -22,7 +22,9 @@
 #define KEYBOARDSYMBOLSPARSER_H
 
 #include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/spirit/home/x3.hpp>
+
+#include <string>
+#include <vector>
 
 using Display = class _XDisplay;
 
