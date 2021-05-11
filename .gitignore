@@ -7,7 +7,8 @@ CMakeLists.txt.user*
 
 # Vim files
 .tasks
-.clangd
+neovim.json
+.cache
 compile_commands.json
 
 # KDE files
