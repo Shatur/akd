@@ -14,9 +14,9 @@ static constexpr x3::rule<class GroupsRule, std::vector<std::string>> groupsRule
 static constexpr x3::rule<class OptionsRule, std::vector<std::string>> optionsRule = "options";
 
 // Server sends symbols with '_' instead of '+'
-constexpr auto symbolsRule_def = "pc_" >> groupsRule >> -('_' >> optionsRule);
-constexpr auto groupsRule_def = +x3::alpha >> *('_' >> +x3::alpha >> '_' >> x3::omit[x3::digit]);
-constexpr auto optionsRule_def = x3::lexeme[+(x3::char_ - ')') >> x3::char_(')')] % '_';
+static constexpr auto symbolsRule_def = "pc_" >> groupsRule >> -('_' >> optionsRule);
+static constexpr auto groupsRule_def = +x3::alpha >> *('_' >> +x3::alpha >> '_' >> x3::omit[x3::digit]);
+static constexpr auto optionsRule_def = x3::lexeme[+(x3::char_ - ')') >> x3::char_(')')] % '_';
 
 BOOST_SPIRIT_DEFINE(symbolsRule, groupsRule, optionsRule);
 
