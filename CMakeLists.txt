@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(akd VERSION 2.3.0 LANGUAGES CXX)
+project(akd VERSION 2.3.2 LANGUAGES CXX)
 
 set(PROJECT_LABEL "Advanced Keyboard Daemon")
 set(PROJECT_DESCRIPTION "a keyboard userspace daemon")
