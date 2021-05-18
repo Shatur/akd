@@ -25,6 +25,7 @@
 #include <boost/program_options/variables_map.hpp>
 
 #include <filesystem>
+#include <optional>
 
 class Parameters
 {

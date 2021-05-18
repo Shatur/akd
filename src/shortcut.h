@@ -23,6 +23,7 @@
 
 #include <functional>
 #include <string>
+#include <optional>
 
 #include <X11/Xlib.h>
 
