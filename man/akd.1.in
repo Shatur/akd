@@ -98,8 +98,8 @@ The index of the group to switch when changing the layout.
 Do not update keyboard rules. Improves performance, but other applications won't be aware of the layout changes. Use with caution.
 
 .TP
-.B "-n, --shortcuts.next-layout"
-Switch to next layout.
+.BI "-n, --shortcuts.next-layout" "shortcut"
+Shortcut to switch to next layout.
 
 .SH SHORTCUTS
 
