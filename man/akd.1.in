@@ -33,6 +33,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 .B Advanced Keyboard Daemon
 is a small and efficient keyboard daemon for X11 written in C++17.
 
+.B Note:
+we use X11 naming convention: group is the keyboard language, layout is the set of languages.
+
 .SH OPTIONS
 
 .SS Commands

@@ -25,6 +25,8 @@
 
 Read `man akd` for more information or pass `-h` / `--help` as argument.
 
+**Note:** We use X11 naming convention: group is the keyboard language, layout is the set of languages.
+
 ## Dependencies
 
 **Arch Linux:** boost cmake libx11
