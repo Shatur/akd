@@ -22,8 +22,8 @@
 #define SHORTCUT_H
 
 #include <functional>
-#include <string>
 #include <optional>
+#include <string>
 
 #include <X11/Xlib.h>
 

@@ -28,8 +28,7 @@
 
 using Display = class _XDisplay;
 
-struct KeyboardSymbols
-{
+struct KeyboardSymbols {
     std::vector<std::string> groups;
     std::vector<std::string> options;
 

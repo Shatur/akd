@@ -34,27 +34,24 @@ namespace fs = std::filesystem;
 Parameters::Parameters(int argc, char *argv[])
 {
     po::options_description commands("Commands");
-    commands.add_options()
-            ("help,h", "Print usage information and exit.")
-            ("version,v", "Print version number and exit.")
-            ("print-current-group,c", po::bool_switch(), "Print current group and exit.")
-            ("print-current-group-index,d", po::bool_switch(), "Print current group index and exit.")
-            ("next-group,x", po::bool_switch(), "Switch to the next group and exit.")
-            ("set-group,i", po::value<unsigned>()->value_name("index"), "Switch group to the specified index.");
+    commands.add_options()("help,h", "Print usage information and exit.");
+    commands.add_options()("version,v", "Print version number and exit.");
+    commands.add_options()("print-current-group,c", po::bool_switch(), "Print current group and exit.");
+    commands.add_options()("print-current-group-index,d", po::bool_switch(), "Print current group index and exit.");
+    commands.add_options()("next-group,x", po::bool_switch(), "Switch to the next group and exit.");
+    commands.add_options()("set-group,i", po::value<unsigned>()->value_name("index"), "Switch group to the specified index.");
 
     po::options_description settings("Settings");
-    settings.add_options()
-            ("settings,s", po::value<fs::path>()->value_name("path")->default_value(defaultConfigPath()), "Path to settings file.");
+    settings.add_options()("settings,s", po::value<fs::path>()->value_name("path")->default_value(defaultConfigPath()), "Path to settings file.");
 
     po::options_description daemonConfiguration("Daemon configuration");
-    daemonConfiguration.add_options()
-            ("general.different-groups,g", po::bool_switch(), "Use different groups for each window.")
-            ("general.different-layout,a", po::bool_switch(), "Use different layouts for each window.")
-            ("general.print-groups,p", po::bool_switch(), "Print switched languages in stdout.")
-            ("general.layouts,l", po::value<std::vector<std::string>>()->multitoken(), "Languages separated by ','. Can be specified several times to define several layouts.")
-            ("general.default-group,e", po::value<unsigned>(), "The index of the group to switch when changing the layout.")
-            ("general.skip-rules", po::bool_switch(), "Do not update keyboard rules. Improves performance, but other applications won't be aware of the layout changes. Use with caution.")
-            ("shortcuts.nextlayout,n", po::value<std::string>()->value_name("shortcut"), "Shortcut to switch to next layout.");
+    daemonConfiguration.add_options()("general.different-groups,g", po::bool_switch(), "Use different groups for each window.");
+    daemonConfiguration.add_options()("general.different-layout,a", po::bool_switch(), "Use different layouts for each window.");
+    daemonConfiguration.add_options()("general.print-groups,p", po::bool_switch(), "Print switched languages in stdout.");
+    daemonConfiguration.add_options()("general.layouts,l", po::value<std::vector<std::string>>()->multitoken(), "Languages separated by ','. Can be specified several times to define several layouts.");
+    daemonConfiguration.add_options()("general.default-group,e", po::value<unsigned>(), "The index of the group to switch when changing the layout.");
+    daemonConfiguration.add_options()("general.skip-rules", po::bool_switch(), "Do not update keyboard rules. Improves performance, but other applications won't be aware of the layout changes. Use with caution.");
+    daemonConfiguration.add_options()("shortcuts.nextlayout,n", po::value<std::string>()->value_name("shortcut"), "Shortcut to switch to next layout.");
 
     po::options_description allOptions;
     allOptions.add(commands).add(settings).add(daemonConfiguration);

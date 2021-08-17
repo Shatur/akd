@@ -21,11 +21,11 @@
 #ifndef LAYOUT_H
 #define LAYOUT_H
 
+#include "x11deleters.h"
+
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
-
-#include "x11deleters.h"
 
 class Layout
 {

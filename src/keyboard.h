@@ -23,8 +23,7 @@
 
 #include <cstddef>
 
-struct Keyboard
-{
+struct Keyboard {
     unsigned char group = 0;
     size_t layoutIndex = 0;
 };
