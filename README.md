@@ -1,7 +1,6 @@
 # Advanced Keyboard Daemon
 
 [![GitHub (pre-)release](https://img.shields.io/github/release/Shatur95/akd/all.svg)](https://github.com/Shatur95/akd/releases)
-[![Codacy grade](https://img.shields.io/codacy/grade/6a80ccb47c11497c8e89efa52d5714b7.svg)](https://app.codacy.com/project/Shatur95/akd/dashboard)
 
 **Advanced Keyboard Daemon** is a small and efficient keyboard daemon for X11 written in C++17.
 
